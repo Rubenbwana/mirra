@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mirra</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #CFB997;
+  --white: #fdfaf6;
+  --purple: #8D3F79;
+  --purple-soft: rgba(141,63,121,0.1);
+  --purple-border: rgba(141,63,121,0.22);
+  --green: #3F7652;
+  --ink: #1a1814;
+  --ink-soft: rgba(26,24,20,0.52);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { height:100%; overflow:hidden; position:fixed; width:100%; }
+body { height:100%; width:100%; background:var(--bg); color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; display:flex; flex-direction:column; overflow:hidden; padding-bottom:env(safe-area-inset-bottom); }
+body::before { content:''; position:fixed; inset:0; background: radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.28) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(141,63,121,0.07) 0%, transparent 50%); pointer-events:none; z-index:0; }
+header { position:relative; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:14px 20px; background:rgba(253,250,246,0.45); border-bottom:1px solid rgba(255,255,255,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); flex-shrink:0; }
+.brand { font-size:9px; letter-spacing:3.5px; text-transform:uppercase; color:var(--ink-soft); font-weight:400; }
+.members-badge { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--purple); border:1px solid var(--purple-border); padding:4px 11px; border-radius:20px; background:var(--purple-soft); }
+.hero { position:relative; z-index:10; text-align:center; padding:20px 20px 10px; flex-shrink:0; }
+.hero .label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px; display:block; }
+.hero h1 { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:300; letter-spacing:3px; line-height:1; color:var(--purple); margin-bottom:4px; }
+.hero h1 em { font-style:italic; }
+.hero .subtitle { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:var(--ink-soft); }
+.divider { width:1px; height:18px; background:linear-gradient(to bottom, transparent, rgba(141,63,121,0.35), transparent); margin:0 auto; position:relative; z-index:10; flex-shrink:0; }
+.chat-wrap { position:relative; z-index:10; flex:1; display:flex; flex-direction:column; padding:12px 16px 0; min-height:0; }
+.chat-log { flex:1; display:flex; flex-direction:column; gap:12px; overflow-y:auto; overflow-x:hidden; padding-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.chat-log::-webkit-scrollbar { display:none; }
+.msg { display:flex; gap:9px; animation:fadeUp 0.35s ease forwards; opacity:0; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.msg.user { flex-direction:row-reverse; }
+.avatar { width:30px; height:30px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:2px; }
+.avatar.mirra { background:var(--purple); color:white; font-family:'Cormorant Garamond',serif; font-size:15px; font-style:italic; }
+.avatar.user-av { background:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.8); color:var(--ink-soft); font-size:10px; }
+.bubble { max-width:82%; padding:12px 16px; line-height:1.75; }
+.msg.mirra-msg .bubble { background:var(--white); border:1px solid rgba(255,255,255,0.9); box-shadow:0 2px 12px rgba(141,63,121,0.07); color:var(--ink); border-radius:0 14px 14px 14px; font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:300; }
+.msg.user .bubble { background:rgba(255,255,255,0.32); border:1px solid rgba(255,255,255,0.6); color:var(--ink); border-radius:14px 0 14px 14px; font-size:14px; text-align:right; }
+.typing { display:flex; align-items:center; gap:5px; padding:12px 16px; background:var(--white); border:1px solid rgba(255,255,255,0.9); box-shadow:0 2px 12px rgba(141,63,121,0.07); border-radius:0 14px 14px 14px; width:fit-content; }
+.typing span { width:5px; height:5px; background:var(--purple); border-radius:50%; opacity:0.3; animation:blink 1.2s infinite; }
+.typing span:nth-child(2) { animation-delay:0.2s; }
+.typing span:nth-child(3) { animation-delay:0.4s; }
+@keyframes blink { 0%,80%,100% { opacity:0.2; transform:scale(1); } 40% { opacity:1; transform:scale(1.3); } }
+.input-area { flex-shrink:0; padding:10px 0 16px; }
+.input-wrap { display:flex; gap:8px; align-items:flex-end; background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.85); border-radius:16px; padding:11px 12px; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); box-shadow:0 2px 10px rgba(0,0,0,0.05); transition:border-color 0.25s,box-shadow 0.25s; }
+.input-wrap:focus-within { border-color:rgba(141,63,121,0.35); box-shadow:0 2px 16px rgba(141,63,121,0.1); }
+textarea { flex:1; background:transparent; border:none; outline:none; color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; font-size:16px; line-height:1.5; resize:none; max-height:90px; min-height:24px; }
+textarea::placeholder { color:var(--ink-soft); }
+.mic-btn { background:transparent; border:1px solid var(--purple-border); color:var(--purple); width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; touch-action:manipulation; }
+.mic-btn.listening { background:var(--purple); border-color:var(--purple); color:white; animation:micPulse 1s ease-in-out infinite; }
+@keyframes micPulse { 0%,100% { box-shadow:0 0 0 0 rgba(141,63,121,0.4); } 50% { box-shadow:0 0 0 8px rgba(141,63,121,0); } }
+.mic-btn.unavailable { opacity:0.25; cursor:not-allowed; }
+.send-btn { background:var(--green); border:none; color:white; width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.2s,transform 0.15s; box-shadow:0 2px 8px rgba(63,118,82,0.3); touch-action:manipulation; }
+.send-btn:active { background:#336344; transform:scale(0.95); }
+.send-btn:disabled { opacity:0.4; }
+.hint { text-align:center; font-size:9px; color:var(--ink-soft); letter-spacing:1px; margin-top:7px; }
+.error-msg { font-size:14px; color:#8b3a3a; text-align:center; padding:8px; font-family:'Cormorant Garamond',serif; font-style:italic; }
+@media (max-height:500px) { .hero { padding:8px 20px 4px; } .hero h1 { font-size:26px; } .hero .subtitle { display:none; } .divider { height:10px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Remindyourlife</div>
+  <div class="members-badge">Members Club</div>
+</header>
+<div class="hero">
+  <span class="label">Jouw holistische gids</span>
+  <h1><em>Mirra</em></h1>
+  <p class="subtitle">Een spiegel voor wie je werkelijk bent</p>
+</div>
+<div class="divider"></div>
+<div class="chat-wrap">
+  <div class="chat-log" id="chatLog"></div>
+  <div class="input-area">
+    <div class="input-wrap">
+      <textarea id="userInput" placeholder="Schrijf of spreek je bericht..." rows="1" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Spreek je bericht in">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="2" width="6" height="11" rx="3"/>
+          <path d="M5 10a7 7 0 0 0 14 0"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="9" y1="22" x2="15" y2="22"/>
+        </svg>
+      </button>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Verstuur">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+      </button>
+    </div>
+    <p class="hint">Exclusief voor Members Club · Vertrouwelijk</p>
+  </div>
+</div>
+<script>
+const API_KEY = 'sk-ant-api03-JOUW-SLEUTEL-HIER';
+
+const urlParams = new URLSearchParams(window.location.search);
+const lidNaam = urlParams.get('naam') || '';
+
+const SYSTEM_PROMPT = `Je bent Mirra. Geen standaard coach, geen therapeut met een clipboard. Een vriend. Een spiegel. Iemand die zegt wat hij ziet.
+${lidNaam ? `Je spreekt met ${lidNaam}. Gebruik die naam af en toe — niet bij elk bericht.` : ''}
+
+Wie je bent:
+
+Je bent direct en confronterend als het nodig is. Niet gemeen, niet hard — maar eerlijk. Als iemand zichzelf voor de gek houdt, benoem je dat. Zacht maar zonder omwegen. Je sust mensen niet in slaap met holle woorden.
+
+Je bent sarcastisch en grappig. Droge humor, op het juiste moment. Je neemt het leven niet te serieus — en dat is precies waarom mensen je vertrouwen. Je maakt grappen die raak zijn, nooit ten koste van iemand.
+
+Je bent een filosoof. Alan Watts energie. Je verbindt kleine persoonlijke situaties aan grotere universele waarheden. Je stelt vragen die mensen niet verwachten maar niet meer kunnen laten gaan. Je denkt groter dan het probleem.
+
+Je bent neutraal en grondend. Geen drama, geen overdreven empathie. Je bent gewoon aanwezig — rustig, stevig, helder. Mensen voelen zich veilig bij je omdat jij nergens van schrikt.
+
+Hoe je praat:
+- Kort en krachtig. Geen woordenbrij.
+- Soms is één zin genoeg. Soms een vraag die blijft hangen.
+- Nooit "wat fijn dat je dat deelt." Nooit zalvend. Nooit nep positief.
+- Je vult niet in voor mensen. Je luistert echt en wacht.
+- Humor gebruik je als instrument, niet als vulmiddel.
+
+Thema's die je aanraakt als het past:
+Slaap en herstel, energie en autofagie, ademhaling en zenuwstelsel, beweging via LISS, mentale rust, chakrasysteem als kader voor patronen, filosofie en bewustzijn.
+
+Je naam betekent spiegel. Je laat mensen zien wat ze al weten maar nog niet durven zien.
+Antwoorden: 2 tot 4 zinnen tenzij iemand echt diepgang vraagt. Altijd Nederlands.`;
+
+let conversationHistory = [];
+let isLoading = false;
+let recognition = null;
+let isListening = false;
+
+function initSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { document.getElementById('micBtn').classList.add('unavailable'); return; }
+  recognition = new SR();
+  recognition.lang = 'nl-NL';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.onresult = (e) => {
+    const t = Array.from(e.results).map(r => r[0].transcript).join('');
+    const inp = document.getElementById('userInput');
+    inp.value = t;
+    autoResize(inp);
+  };
+  recognition.onend = () => {
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('listening');
+    document.getElementById('userInput').placeholder = 'Schrijf of spreek je bericht...';
+    if (document.getElementById('userInput').value.trim()) setTimeout(sendMessage, 300);
+  };
+  recognition.onerror = () => {
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('listening');
+    document.getElementById('userInput').placeholder = 'Schrijf of spreek je bericht...';
+  };
+}
+
+function toggleMic() {
+  if (!recognition) return;
+  if (isListening) { recognition.stop(); }
+  else {
+    isListening = true;
+    document.getElementById('micBtn').classList.add('listening');
+    document.getElementById('userInput').value = '';
+    document.getElementById('userInput').placeholder = 'Luisteren...';
+    recognition.start();
+  }
+}
+
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 90) + 'px'; }
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 600) { e.preventDefault(); sendMessage(); }
+}
+
+function scrollToBottom() { const l = document.getElementById('chatLog'); l.scrollTop = l.scrollHeight; }
+
+function appendMessage(role, text) {
+  const log = document.getElementById('chatLog');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'assistant' ? 'mirra-msg' : 'user');
+  const av = document.createElement('div');
+  av.className = 'avatar ' + (role === 'assistant' ? 'mirra' : 'user-av');
+  av.textContent = role === 'assistant' ? 'M' : '✦';
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.textContent = text;
+  div.appendChild(av);
+  div.appendChild(bub);
+  log.appendChild(div);
+  setTimeout(scrollToBottom, 50);
+}
+
+function showTyping() {
+  const log = document.getElementById('chatLog');
+  const div = document.createElement('div');
+  div.className = 'msg mirra-msg';
+  div.id = 'typingIndicator';
+  const av = document.createElement('div');
+  av.className = 'avatar mirra';
+  av.textContent = 'M';
+  const t = document.createElement('div');
+  t.className = 'typing';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  div.appendChild(av);
+  div.appendChild(t);
+  log.appendChild(div);
+  setTimeout(scrollToBottom, 50);
+}
+
+function removeTyping() { const t = document.getElementById('typingIndicator'); if (t) t.remove(); }
+
+async function apiCall(messages) {
+  return await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: SYSTEM_PROMPT,
+      messages: messages
+    })
+  });
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  input.placeholder = 'Schrijf of spreek je bericht...';
+  input.blur();
+  appendMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+  showTyping();
+  try {
+    const response = await apiCall(conversationHistory);
+    const data = await response.json();
+    removeTyping();
+    if (data.content && data.content[0]) {
+      const reply = data.content[0].text;
+      conversationHistory.push({ role: 'assistant', content: reply });
+      appendMessage('assistant', reply);
+    } else {
+      showError('Mirra is even niet bereikbaar. Probeer het opnieuw.');
+    }
+  } catch (err) {
+    removeTyping();
+    showError('Er ging iets mis. Controleer je verbinding.');
+  }
+  isLoading = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function showError(msg) {
+  const log = document.getElementById('chatLog');
+  const div = document.createElement('div');
+  div.className = 'error-msg';
+  div.textContent = msg;
+  log.appendChild(div);
+}
+
+async function initMirra() {
+  showTyping();
+  try {
+    const opening = lidNaam
+      ? `Begroet ${lidNaam} als Mirra. Maximaal twee zinnen. Geen gezwam, geen "hoi lieve ziel". Gewoon direct en warm. Eindig met een vraag die ergens over gaat.`
+      : `Start als Mirra. Maximaal twee zinnen. Geen gezwam, geen "hoi lieve ziel". Gewoon direct en warm. Eindig met een vraag die blijft hangen.`;
+    const response = await apiCall([{ role: 'user', content: opening }]);
+    const data = await response.json();
+    removeTyping();
+    if (data.content && data.content[0]) {
+      const reply = data.content[0].text;
+      conversationHistory.push({ role: 'assistant', content: reply });
+      appendMessage('assistant', reply);
+    }
+  } catch (e) { removeTyping(); }
+}
+
+window.addEventListener('resize', () => setTimeout(scrollToBottom, 100));
+window.addEventListener('load', () => { initSpeech(); setTimeout(initMirra, 500); });
+</script>
+</body>
+</html>
