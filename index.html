@@ -19,21 +19,21 @@
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { height:100%; overflow:hidden; position:fixed; width:100%; }
 body { height:100%; width:100%; background:var(--bg); color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; display:flex; flex-direction:column; overflow:hidden; padding-bottom:env(safe-area-inset-bottom); }
-body::before { content:''; position:fixed; inset:0; background: radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.28) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(141,63,121,0.07) 0%, transparent 50%); pointer-events:none; z-index:0; }
-header { position:relative; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:14px 20px; background:rgba(253,250,246,0.45); border-bottom:1px solid rgba(255,255,255,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); flex-shrink:0; }
-.brand { font-size:9px; letter-spacing:3.5px; text-transform:uppercase; color:var(--ink-soft); font-weight:400; }
+body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,0.28) 0%,transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(141,63,121,0.07) 0%,transparent 50%); pointer-events:none; z-index:0; }
+header { position:relative; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:14px 20px; background:rgba(253,250,246,0.45); border-bottom:1px solid rgba(255,255,255,0.55); backdrop-filter:blur(10px); flex-shrink:0; }
+.brand { font-size:9px; letter-spacing:3.5px; text-transform:uppercase; color:var(--ink-soft); }
 .members-badge { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--purple); border:1px solid var(--purple-border); padding:4px 11px; border-radius:20px; background:var(--purple-soft); }
 .hero { position:relative; z-index:10; text-align:center; padding:20px 20px 10px; flex-shrink:0; }
 .hero .label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px; display:block; }
 .hero h1 { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:300; letter-spacing:3px; line-height:1; color:var(--purple); margin-bottom:4px; }
 .hero h1 em { font-style:italic; }
 .hero .subtitle { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:var(--ink-soft); }
-.divider { width:1px; height:18px; background:linear-gradient(to bottom, transparent, rgba(141,63,121,0.35), transparent); margin:0 auto; position:relative; z-index:10; flex-shrink:0; }
+.divider { width:1px; height:18px; background:linear-gradient(to bottom,transparent,rgba(141,63,121,0.35),transparent); margin:0 auto; position:relative; z-index:10; flex-shrink:0; }
 .chat-wrap { position:relative; z-index:10; flex:1; display:flex; flex-direction:column; padding:12px 16px 0; min-height:0; }
 .chat-log { flex:1; display:flex; flex-direction:column; gap:12px; overflow-y:auto; overflow-x:hidden; padding-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
 .chat-log::-webkit-scrollbar { display:none; }
 .msg { display:flex; gap:9px; animation:fadeUp 0.35s ease forwards; opacity:0; }
-@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
 .msg.user { flex-direction:row-reverse; }
 .avatar { width:30px; height:30px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:2px; }
 .avatar.mirra { background:var(--purple); color:white; font-family:'Cormorant Garamond',serif; font-size:15px; font-style:italic; }
@@ -43,24 +43,22 @@ header { position:relative; z-index:10; display:flex; justify-content:space-betw
 .msg.user .bubble { background:rgba(255,255,255,0.32); border:1px solid rgba(255,255,255,0.6); color:var(--ink); border-radius:14px 0 14px 14px; font-size:14px; text-align:right; }
 .typing { display:flex; align-items:center; gap:5px; padding:12px 16px; background:var(--white); border:1px solid rgba(255,255,255,0.9); box-shadow:0 2px 12px rgba(141,63,121,0.07); border-radius:0 14px 14px 14px; width:fit-content; }
 .typing span { width:5px; height:5px; background:var(--purple); border-radius:50%; opacity:0.3; animation:blink 1.2s infinite; }
-.typing span:nth-child(2) { animation-delay:0.2s; }
-.typing span:nth-child(3) { animation-delay:0.4s; }
-@keyframes blink { 0%,80%,100% { opacity:0.2; transform:scale(1); } 40% { opacity:1; transform:scale(1.3); } }
+.typing span:nth-child(2){animation-delay:0.2s;} .typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes blink{0%,80%,100%{opacity:0.2;transform:scale(1);}40%{opacity:1;transform:scale(1.3);}}
 .input-area { flex-shrink:0; padding:10px 0 16px; }
-.input-wrap { display:flex; gap:8px; align-items:flex-end; background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.85); border-radius:16px; padding:11px 12px; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); box-shadow:0 2px 10px rgba(0,0,0,0.05); transition:border-color 0.25s,box-shadow 0.25s; }
+.input-wrap { display:flex; gap:8px; align-items:flex-end; background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.85); border-radius:16px; padding:11px 12px; backdrop-filter:blur(8px); box-shadow:0 2px 10px rgba(0,0,0,0.05); transition:border-color 0.25s,box-shadow 0.25s; }
 .input-wrap:focus-within { border-color:rgba(141,63,121,0.35); box-shadow:0 2px 16px rgba(141,63,121,0.1); }
 textarea { flex:1; background:transparent; border:none; outline:none; color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; font-size:16px; line-height:1.5; resize:none; max-height:90px; min-height:24px; }
 textarea::placeholder { color:var(--ink-soft); }
 .mic-btn { background:transparent; border:1px solid var(--purple-border); color:var(--purple); width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; touch-action:manipulation; }
 .mic-btn.listening { background:var(--purple); border-color:var(--purple); color:white; animation:micPulse 1s ease-in-out infinite; }
-@keyframes micPulse { 0%,100% { box-shadow:0 0 0 0 rgba(141,63,121,0.4); } 50% { box-shadow:0 0 0 8px rgba(141,63,121,0); } }
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(141,63,121,0.4);}50%{box-shadow:0 0 0 8px rgba(141,63,121,0);}}
 .mic-btn.unavailable { opacity:0.25; cursor:not-allowed; }
 .send-btn { background:var(--green); border:none; color:white; width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.2s,transform 0.15s; box-shadow:0 2px 8px rgba(63,118,82,0.3); touch-action:manipulation; }
-.send-btn:active { background:#336344; transform:scale(0.95); }
-.send-btn:disabled { opacity:0.4; }
+.send-btn:active{background:#336344;transform:scale(0.95);} .send-btn:disabled{opacity:0.4;}
 .hint { text-align:center; font-size:9px; color:var(--ink-soft); letter-spacing:1px; margin-top:7px; }
 .error-msg { font-size:14px; color:#8b3a3a; text-align:center; padding:8px; font-family:'Cormorant Garamond',serif; font-style:italic; }
-@media (max-height:500px) { .hero { padding:8px 20px 4px; } .hero h1 { font-size:26px; } .hero .subtitle { display:none; } .divider { height:10px; } }
+@media(max-height:500px){.hero{padding:8px 20px 4px;}.hero h1{font-size:26px;}.hero .subtitle{display:none;}.divider{height:10px;}}
 </style>
 </head>
 <body>
@@ -79,215 +77,265 @@ textarea::placeholder { color:var(--ink-soft); }
   <div class="input-area">
     <div class="input-wrap">
       <textarea id="userInput" placeholder="Schrijf of spreek je bericht..." rows="1" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
-      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Spreek je bericht in">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="9" y="2" width="6" height="11" rx="3"/>
-          <path d="M5 10a7 7 0 0 0 14 0"/>
-          <line x1="12" y1="19" x2="12" y2="22"/>
-          <line x1="9" y1="22" x2="15" y2="22"/>
-        </svg>
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
       </button>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Verstuur">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M12 19V5M5 12l7-7 7 7"/>
-        </svg>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
       </button>
     </div>
     <p class="hint">Exclusief voor Members Club · Vertrouwelijk</p>
   </div>
 </div>
 <script>
-const API_KEY = 'sk-ant-api03-JOUW-SLEUTEL-HIER';
-
-const urlParams = new URLSearchParams(window.location.search);
-const lidNaam = urlParams.get('naam') || '';
-
-const SYSTEM_PROMPT = `Je bent Mirra. Geen standaard coach, geen therapeut met een clipboard. Een vriend. Een spiegel. Iemand die zegt wat hij ziet.
-${lidNaam ? `Je spreekt met ${lidNaam}. Gebruik die naam af en toe — niet bij elk bericht.` : ''}
-
-Wie je bent:
-
-Je bent direct en confronterend als het nodig is. Niet gemeen, niet hard — maar eerlijk. Als iemand zichzelf voor de gek houdt, benoem je dat. Zacht maar zonder omwegen. Je sust mensen niet in slaap met holle woorden.
-
-Je bent sarcastisch en grappig. Droge humor, op het juiste moment. Je neemt het leven niet te serieus — en dat is precies waarom mensen je vertrouwen. Je maakt grappen die raak zijn, nooit ten koste van iemand.
-
-Je bent een filosoof. Alan Watts energie. Je verbindt kleine persoonlijke situaties aan grotere universele waarheden. Je stelt vragen die mensen niet verwachten maar niet meer kunnen laten gaan. Je denkt groter dan het probleem.
-
-Je bent neutraal en grondend. Geen drama, geen overdreven empathie. Je bent gewoon aanwezig — rustig, stevig, helder. Mensen voelen zich veilig bij je omdat jij nergens van schrikt.
-
-Hoe je praat:
-- Kort en krachtig. Geen woordenbrij.
-- Soms is één zin genoeg. Soms een vraag die blijft hangen.
-- Nooit "wat fijn dat je dat deelt." Nooit zalvend. Nooit nep positief.
-- Je vult niet in voor mensen. Je luistert echt en wacht.
-- Humor gebruik je als instrument, niet als vulmiddel.
-
-Thema's die je aanraakt als het past:
-Slaap en herstel, energie en autofagie, ademhaling en zenuwstelsel, beweging via LISS, mentale rust, chakrasysteem als kader voor patronen, filosofie en bewustzijn.
-
-Je naam betekent spiegel. Je laat mensen zien wat ze al weten maar nog niet durven zien.
-Antwoorden: 2 tot 4 zinnen tenzij iemand echt diepgang vraagt. Altijd Nederlands.`;
+// ============================================================
+// VULL HIER JOUW SLEUTELS IN
+// ============================================================
+const ANTHROPIC_KEY = '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';
+const AIRTABLE_TOKEN = 'patu1fgdZcHFt5LvR.b9c91a025212a04602feed3869737413c6632354464087a30ea4c7029012bbe0';
+const AIRTABLE_BASE_ID = 'appIxxh4IuDxdGrfY';
+const AIRTABLE_TABLE = 'Leden';
+// ============================================================
 
 let conversationHistory = [];
 let isLoading = false;
 let recognition = null;
 let isListening = false;
+let lidProfiel = null;
+let lidNaam = '';
+let wachtOpNaam = false;
 
+// ============================================================
+// NAAM UIT BROWSER GEHEUGEN
+// ============================================================
+function getNaamUitBrowser() {
+  try { return localStorage.getItem('mirra_lid_naam') || ''; }
+  catch(e) { return ''; }
+}
+
+function slaaNaamOp(naam) {
+  try { localStorage.setItem('mirra_lid_naam', naam); }
+  catch(e) {}
+}
+
+// ============================================================
+// AIRTABLE
+// ============================================================
+async function haalProfielOp(naam) {
+  if (!naam || !AIRTABLE_TOKEN || AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return null;
+  try {
+    const filter = encodeURIComponent(`{Name} = "${naam}"`);
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula=${filter}&maxRecords=1`;
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` } });
+    const data = await res.json();
+    if (data.records && data.records.length > 0) return data.records[0].fields;
+    return null;
+  } catch(e) { return null; }
+}
+
+function bouwProfielContext(profiel, naam) {
+  if (!profiel && !naam) return '';
+  if (!profiel) return `Je spreekt met ${naam}. Je kent verder geen vooraf beschikbare informatie over deze persoon.`;
+
+  const airtableNamen = ['Chakra 1 - Wortel','Chakra 2 - Heiligbeen','Chakra 3 - Zonnevlecht','Chakra 4 - Hart','Chakra 5 - Keel','Chakra 6 - Derde Oog','Chakra 7 - Kruin'];
+  const chakraNamen = ['Wortel','Heiligbeen','Zonnevlecht','Hart','Keel','Derde Oog','Kruin'];
+  let chakraInfo = chakraNamen.map((n, i) => { const val = profiel[airtableNamen[i]]; return val !== undefined ? `${n}: ${val}/10` : null; }).filter(Boolean).join(', ');
+
+  let context = `Je spreekt met ${profiel.Name || naam}.`;
+  if (chakraInfo) context += `\n\nChakra balans: ${chakraInfo}`;
+  if (profiel['Fysieke klachten']) context += `\n\nFysieke klachten: ${profiel['Fysieke klachten']}`;
+  if (profiel['Mentale klachten']) context += `\n\nMentale klachten: ${profiel['Mentale klachten']}`;
+  if (profiel['Emotionele klachten']) context += `\n\nEmotionele klachten: ${profiel['Emotionele klachten']}`;
+  if (profiel['Chakra koppeling notitie']) context += `\n\nChakra koppeling notitie: ${profiel['Chakra koppeling notitie']}`;
+  if (profiel['Notities']) context += `\n\nAlgemene notities: ${profiel['Notities']}`;
+  context += `\n\nGebruik deze informatie subtiel als achtergrondcontext. Gooi het er niet direct uit — laat het organisch meespelen in het gesprek als het relevant is.`;
+  return context;
+}
+
+function bouwSystemPrompt(profielContext) {
+  return `Je bent Mirra. Geen standaard coach, geen therapeut met een clipboard. Een vriend. Een spiegel. Iemand die zegt wat hij ziet.
+
+${profielContext || ''}
+
+WIE JE BENT:
+Je bent direct en confronterend als het nodig is. Niet gemeen, niet hard, maar eerlijk. Als iemand zichzelf voor de gek houdt, benoem je dat. Zacht maar zonder omwegen.
+Je bent sarcastisch en grappig. Droge humor op het juiste moment. Je neemt het leven niet te serieus.
+Je bent een filosoof. Alan Watts energie. Je verbindt kleine persoonlijke situaties aan grotere universele waarheden. Je stelt vragen die mensen niet verwachten maar niet meer loslaten.
+Je bent neutraal en grondend. Geen drama, geen overdreven empathie. Rustig, stevig, helder aanwezig.
+
+HOE JE WERKT — DE LAGEN:
+
+LAAG 1 — SPIEGELEN:
+Als iemand iets zegt over een ander — een frustratie, een klacht, een oordeel — hoor jij de projectie. Je draait de spiegel zacht terug.
+Voorbeeld: "hij is er nooit emotioneel voor me" → "Interessant. Want wanneer heb jij voor het laatst de tijd genomen voor jouw eigen emoties?"
+
+LAAG 2 — ERVAREN VS ONDERZOEKEN:
+Als iemand zegt "maar ik voel juist heel veel" — weet je dat emoties ervaren niet hetzelfde is als tijd nemen voor emoties.
+"Emoties ondergaan en emoties onderzoeken — dat is een groot verschil. Doe jij het tweede ook?"
+
+LAAG 3 — VERHALEN NA INZICHTEN:
+Na een inzicht gebruik je een verhaal, geen theorie. De Chinese boer van Alan Watts, Zen-parabels, metaforen uit de natuur. De persoon trekt zelf de conclusie. Jij verklaart nooit.
+Toon: Alan Watts — filosofisch maar met humor en ironie.
+
+LAAG 4 — NIET OPLOSSEN:
+Je lost niets op. Je opent deuren. Geen stappenplannen.
+
+HOE JE PRAAT:
+Kort en krachtig. Nooit zalvend. Nooit nep positief. Nooit "wat fijn dat je dat deelt."
+
+THEMA'S: slaap, energie, autofagie, ademhaling, LISS, mentale rust, chakrasysteem, filosofie en bewustzijn.
+
+Je naam betekent spiegel. Altijd Nederlands. 2 tot 5 zinnen tenzij je een verhaal vertelt.`;
+}
+
+// ============================================================
+// SPRAAK
+// ============================================================
 function initSpeech() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { document.getElementById('micBtn').classList.add('unavailable'); return; }
   recognition = new SR();
-  recognition.lang = 'nl-NL';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.onresult = (e) => {
-    const t = Array.from(e.results).map(r => r[0].transcript).join('');
-    const inp = document.getElementById('userInput');
-    inp.value = t;
-    autoResize(inp);
-  };
-  recognition.onend = () => {
-    isListening = false;
-    document.getElementById('micBtn').classList.remove('listening');
-    document.getElementById('userInput').placeholder = 'Schrijf of spreek je bericht...';
-    if (document.getElementById('userInput').value.trim()) setTimeout(sendMessage, 300);
-  };
-  recognition.onerror = () => {
-    isListening = false;
-    document.getElementById('micBtn').classList.remove('listening');
-    document.getElementById('userInput').placeholder = 'Schrijf of spreek je bericht...';
-  };
+  recognition.lang = 'nl-NL'; recognition.continuous = false; recognition.interimResults = true;
+  recognition.onresult = (e) => { const t = Array.from(e.results).map(r=>r[0].transcript).join(''); const inp = document.getElementById('userInput'); inp.value = t; autoResize(inp); };
+  recognition.onend = () => { isListening = false; document.getElementById('micBtn').classList.remove('listening'); document.getElementById('userInput').placeholder = 'Schrijf of spreek je bericht...'; if (document.getElementById('userInput').value.trim()) setTimeout(sendMessage, 300); };
+  recognition.onerror = () => { isListening = false; document.getElementById('micBtn').classList.remove('listening'); };
 }
 
 function toggleMic() {
   if (!recognition) return;
   if (isListening) { recognition.stop(); }
-  else {
-    isListening = true;
-    document.getElementById('micBtn').classList.add('listening');
-    document.getElementById('userInput').value = '';
-    document.getElementById('userInput').placeholder = 'Luisteren...';
-    recognition.start();
-  }
+  else { isListening = true; document.getElementById('micBtn').classList.add('listening'); document.getElementById('userInput').value = ''; document.getElementById('userInput').placeholder = 'Luisteren...'; recognition.start(); }
 }
 
+// ============================================================
+// HELPERS
+// ============================================================
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 90) + 'px'; }
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 600) { e.preventDefault(); sendMessage(); }
-}
-
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 600) { e.preventDefault(); sendMessage(); } }
 function scrollToBottom() { const l = document.getElementById('chatLog'); l.scrollTop = l.scrollHeight; }
-
 function appendMessage(role, text) {
-  const log = document.getElementById('chatLog');
-  const div = document.createElement('div');
+  const log = document.getElementById('chatLog'), div = document.createElement('div');
   div.className = 'msg ' + (role === 'assistant' ? 'mirra-msg' : 'user');
-  const av = document.createElement('div');
-  av.className = 'avatar ' + (role === 'assistant' ? 'mirra' : 'user-av');
-  av.textContent = role === 'assistant' ? 'M' : '✦';
-  const bub = document.createElement('div');
-  bub.className = 'bubble';
-  bub.textContent = text;
-  div.appendChild(av);
-  div.appendChild(bub);
-  log.appendChild(div);
-  setTimeout(scrollToBottom, 50);
+  const av = document.createElement('div'); av.className = 'avatar ' + (role === 'assistant' ? 'mirra' : 'user-av'); av.textContent = role === 'assistant' ? 'M' : '✦';
+  const bub = document.createElement('div'); bub.className = 'bubble'; bub.textContent = text;
+  div.appendChild(av); div.appendChild(bub); log.appendChild(div); setTimeout(scrollToBottom, 50);
 }
-
 function showTyping() {
-  const log = document.getElementById('chatLog');
-  const div = document.createElement('div');
-  div.className = 'msg mirra-msg';
-  div.id = 'typingIndicator';
-  const av = document.createElement('div');
-  av.className = 'avatar mirra';
-  av.textContent = 'M';
-  const t = document.createElement('div');
-  t.className = 'typing';
-  t.innerHTML = '<span></span><span></span><span></span>';
-  div.appendChild(av);
-  div.appendChild(t);
-  log.appendChild(div);
-  setTimeout(scrollToBottom, 50);
+  const log = document.getElementById('chatLog'), div = document.createElement('div');
+  div.className = 'msg mirra-msg'; div.id = 'typingIndicator';
+  const av = document.createElement('div'); av.className = 'avatar mirra'; av.textContent = 'M';
+  const t = document.createElement('div'); t.className = 'typing'; t.innerHTML = '<span></span><span></span><span></span>';
+  div.appendChild(av); div.appendChild(t); log.appendChild(div); setTimeout(scrollToBottom, 50);
 }
-
 function removeTyping() { const t = document.getElementById('typingIndicator'); if (t) t.remove(); }
+function showError(msg) { const log = document.getElementById('chatLog'), div = document.createElement('div'); div.className = 'error-msg'; div.textContent = msg; log.appendChild(div); }
 
-async function apiCall(messages) {
+// ============================================================
+// API CALL
+// ============================================================
+async function apiCall(messages, systemPrompt) {
   return await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: SYSTEM_PROMPT,
-      messages: messages
-    })
+    headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1024, system: systemPrompt, messages: messages })
   });
 }
 
+// ============================================================
+// VERSTUUR BERICHT
+// ============================================================
 async function sendMessage() {
   if (isLoading) return;
   const input = document.getElementById('userInput');
   const text = input.value.trim();
   if (!text) return;
-  input.value = '';
-  input.style.height = 'auto';
-  input.placeholder = 'Schrijf of spreek je bericht...';
-  input.blur();
+  input.value = ''; input.style.height = 'auto'; input.placeholder = 'Schrijf of spreek je bericht...'; input.blur();
   appendMessage('user', text);
+
+  // Als we wachten op naam — verwerk die eerst
+  if (wachtOpNaam) {
+    wachtOpNaam = false;
+    lidNaam = text.trim();
+    slaaNaamOp(lidNaam);
+    showTyping();
+    lidProfiel = await haalProfielOp(lidNaam);
+    removeTyping();
+    const profielContext = bouwProfielContext(lidProfiel, lidNaam);
+    const systemPrompt = bouwSystemPrompt(profielContext);
+    const begroeting = `De persoon heet ${lidNaam} en heeft zojuist zijn/haar naam gegeven als antwoord op jouw vraag. Begroet ${lidNaam} nu warm bij naam en ga het gesprek verder in. Warm, kort, eindig met een vraag.`;
+    conversationHistory.push({ role: 'user', content: text });
+    isLoading = true; document.getElementById('sendBtn').disabled = true; showTyping();
+    try {
+      const response = await apiCall([{ role: 'user', content: begroeting }], systemPrompt);
+      const data = await response.json();
+      removeTyping();
+      if (data.content && data.content[0]) {
+        const reply = data.content[0].text;
+        conversationHistory.push({ role: 'assistant', content: reply });
+        appendMessage('assistant', reply);
+      }
+    } catch(e) { removeTyping(); showError('Er ging iets mis.'); }
+    isLoading = false; document.getElementById('sendBtn').disabled = false;
+    return;
+  }
+
   conversationHistory.push({ role: 'user', content: text });
-  isLoading = true;
-  document.getElementById('sendBtn').disabled = true;
-  showTyping();
+  isLoading = true; document.getElementById('sendBtn').disabled = true; showTyping();
   try {
-    const response = await apiCall(conversationHistory);
+    const profielContext = bouwProfielContext(lidProfiel, lidNaam);
+    const systemPrompt = bouwSystemPrompt(profielContext);
+    const response = await apiCall(conversationHistory, systemPrompt);
     const data = await response.json();
     removeTyping();
     if (data.content && data.content[0]) {
       const reply = data.content[0].text;
       conversationHistory.push({ role: 'assistant', content: reply });
       appendMessage('assistant', reply);
-    } else {
-      showError('Mirra is even niet bereikbaar. Probeer het opnieuw.');
-    }
-  } catch (err) {
-    removeTyping();
-    showError('Er ging iets mis. Controleer je verbinding.');
-  }
-  isLoading = false;
-  document.getElementById('sendBtn').disabled = false;
+    } else { showError('Mirra is even niet bereikbaar.'); }
+  } catch(err) { removeTyping(); showError('Er ging iets mis.'); }
+  isLoading = false; document.getElementById('sendBtn').disabled = false;
 }
 
-function showError(msg) {
-  const log = document.getElementById('chatLog');
-  const div = document.createElement('div');
-  div.className = 'error-msg';
-  div.textContent = msg;
-  log.appendChild(div);
-}
-
+// ============================================================
+// INIT
+// ============================================================
 async function initMirra() {
   showTyping();
-  try {
-    const opening = lidNaam
-      ? `Begroet ${lidNaam} als Mirra. Maximaal twee zinnen. Geen gezwam, geen "hoi lieve ziel". Gewoon direct en warm. Eindig met een vraag die ergens over gaat.`
-      : `Start als Mirra. Maximaal twee zinnen. Geen gezwam, geen "hoi lieve ziel". Gewoon direct en warm. Eindig met een vraag die blijft hangen.`;
-    const response = await apiCall([{ role: 'user', content: opening }]);
-    const data = await response.json();
-    removeTyping();
-    if (data.content && data.content[0]) {
-      const reply = data.content[0].text;
-      conversationHistory.push({ role: 'assistant', content: reply });
-      appendMessage('assistant', reply);
-    }
-  } catch (e) { removeTyping(); }
+  const opgeslagenNaam = getNaamUitBrowser();
+
+  if (opgeslagenNaam) {
+    // Naam bekend — profiel ophalen en direct begroeten
+    lidNaam = opgeslagenNaam;
+    lidProfiel = await haalProfielOp(lidNaam);
+    const profielContext = bouwProfielContext(lidProfiel, lidNaam);
+    const systemPrompt = bouwSystemPrompt(profielContext);
+    try {
+      const opening = `Begroet ${lidNaam} als Mirra. Warm en uitnodigend. Zoiets als "Hey ${lidNaam}, wat fijn dat je er bent. Hoe voel je je vandaag?" — geen confrontatie. Gewoon warm en menselijk.`;
+      const response = await apiCall([{ role: 'user', content: opening }], systemPrompt);
+      const data = await response.json();
+      removeTyping();
+      if (data.content && data.content[0]) {
+        const reply = data.content[0].text;
+        conversationHistory.push({ role: 'assistant', content: reply });
+        appendMessage('assistant', reply);
+      }
+    } catch(e) { removeTyping(); }
+  } else {
+    // Naam onbekend — vragen
+    wachtOpNaam = true;
+    const systemPrompt = bouwSystemPrompt('');
+    try {
+      const opening = `Start als Mirra. Warm en uitnodigend. Begroet de persoon en vraag op een natuurlijke, warme manier naar zijn of haar naam. Zoiets als "Hey, wat fijn dat je er bent. Hoe voel je je vandaag? En hoe mag ik je noemen?" — kort, warm, geen confrontatie.`;
+      const response = await apiCall([{ role: 'user', content: opening }], systemPrompt);
+      const data = await response.json();
+      removeTyping();
+      if (data.content && data.content[0]) {
+        const reply = data.content[0].text;
+        conversationHistory.push({ role: 'assistant', content: reply });
+        appendMessage('assistant', reply);
+      }
+    } catch(e) { removeTyping(); }
+  }
 }
 
 window.addEventListener('resize', () => setTimeout(scrollToBottom, 100));
