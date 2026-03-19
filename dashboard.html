@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mirra · Ledendashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #CFB997;
+  --bg2: #d9c5a8;
+  --white: #fdfaf6;
+  --purple: #8D3F79;
+  --purple-soft: rgba(141,63,121,0.12);
+  --purple-border: rgba(141,63,121,0.25);
+  --green: #3F7652;
+  --ink: #1a1814;
+  --ink-soft: rgba(26,24,20,0.65);
+  --ink-muted: rgba(26,24,20,0.4);
+  --border: rgba(26,24,20,0.12);
+  --border-strong: rgba(26,24,20,0.2);
+  --red: #9b3a38;
+  --red-soft: rgba(155,58,56,0.1);
+  --orange: #c17f24;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body { background:var(--bg); color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; display:flex; min-height:100vh; }
+body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 10% 0%,rgba(255,255,255,0.3) 0%,transparent 50%),radial-gradient(ellipse at 90% 100%,rgba(141,63,121,0.08) 0%,transparent 50%); pointer-events:none; z-index:0; }
+
+.sidebar { width:280px; min-width:280px; background:rgba(253,250,246,0.55); border-right:1px solid rgba(255,255,255,0.7); backdrop-filter:blur(12px); display:flex; flex-direction:column; height:100vh; position:sticky; top:0; z-index:10; }
+.sidebar-header { padding:28px 24px 20px; border-bottom:1px solid var(--border); }
+.sidebar-brand { font-size:8px; letter-spacing:4px; text-transform:uppercase; color:var(--ink-muted); margin-bottom:6px; }
+.sidebar-title { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; color:var(--purple); font-style:italic; line-height:1; margin-bottom:3px; }
+.sidebar-subtitle { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-muted); }
+.sidebar-search { padding:16px 24px; border-bottom:1px solid var(--border); }
+.sidebar-search input { width:100%; background:rgba(255,255,255,0.6); border:1px solid var(--border-strong); border-radius:8px; padding:9px 12px; color:var(--ink); font-family:'Jost',sans-serif; font-size:13px; font-weight:300; outline:none; transition:border-color 0.2s,background 0.2s; }
+.sidebar-search input:focus { border-color:var(--purple); background:var(--white); }
+.sidebar-search input::placeholder { color:var(--ink-muted); }
+.sidebar-actions { padding:12px 24px; border-bottom:1px solid var(--border); }
+.btn-new { width:100%; background:var(--green); border:none; border-radius:8px; padding:10px; color:white; font-family:'Jost',sans-serif; font-size:11px; font-weight:400; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:background 0.2s; box-shadow:0 2px 8px rgba(63,118,82,0.25); }
+.btn-new:hover { background:#336344; }
+.leden-list { flex:1; overflow-y:auto; padding:12px 0; scrollbar-width:none; }
+.leden-list::-webkit-scrollbar { display:none; }
+.lid-item { padding:12px 24px; cursor:pointer; transition:background 0.15s; border-left:2px solid transparent; }
+.lid-item:hover { background:rgba(141,63,121,0.08); }
+.lid-item.active { background:rgba(141,63,121,0.1); border-left-color:var(--purple); }
+.lid-item-naam { font-size:14px; font-weight:400; color:var(--ink); margin-bottom:2px; }
+.lid-item-meta { font-size:11px; color:var(--ink-muted); }
+.sidebar-footer { padding:16px 24px; border-top:1px solid var(--border); }
+.config-btn { width:100%; background:transparent; border:1px solid var(--border-strong); border-radius:8px; padding:9px; color:var(--ink-soft); font-family:'Jost',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:all 0.2s; }
+.config-btn:hover { border-color:var(--purple); color:var(--purple); }
+
+.main { flex:1; overflow-y:auto; padding:40px 48px; position:relative; z-index:1; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent; }
+.main::-webkit-scrollbar { width:4px; }
+.main::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:2px; }
+
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; min-height:400px; text-align:center; }
+.empty-state .icon { font-family:'Cormorant Garamond',serif; font-size:72px; font-style:italic; color:rgba(141,63,121,0.2); margin-bottom:16px; line-height:1; }
+.empty-state h2 { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; color:var(--ink-soft); margin-bottom:8px; }
+.empty-state p { font-size:13px; color:var(--ink-muted); }
+
+.profiel-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border-strong); }
+.profiel-naam-wrap h1 { font-family:'Cormorant Garamond',serif; font-size:42px; font-weight:300; font-style:italic; color:var(--purple); line-height:1; margin-bottom:6px; }
+.profiel-naam-wrap .lid-id { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-muted); }
+.profiel-acties { display:flex; gap:10px; align-items:center; }
+
+.btn { padding:9px 20px; border-radius:8px; font-family:'Jost',sans-serif; font-size:11px; font-weight:400; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:none; }
+.btn-save { background:var(--green); color:white; box-shadow:0 2px 8px rgba(63,118,82,0.25); }
+.btn-save:hover { background:#336344; }
+.btn-save:disabled { opacity:0.6; cursor:not-allowed; }
+.btn-delete { background:transparent; border:1px solid rgba(155,58,56,0.3); color:var(--red); }
+.btn-delete:hover { background:var(--red-soft); }
+.btn-suggest { background:var(--purple); color:white; box-shadow:0 2px 8px rgba(141,63,121,0.25); font-size:10px; }
+.btn-suggest:hover { background:#7a3568; }
+
+.section { margin-bottom:36px; }
+.section-title { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--ink-muted); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+.section-title::after { content:''; flex:1; height:1px; background:var(--border-strong); }
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+
+.field { display:flex; flex-direction:column; gap:6px; }
+.field label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-soft); font-weight:400; }
+.field input, .field textarea, .field select { background:rgba(255,255,255,0.55); border:1px solid var(--border-strong); border-radius:8px; padding:11px 14px; color:var(--ink); font-family:'Jost',sans-serif; font-size:14px; font-weight:300; outline:none; transition:border-color 0.2s,background 0.2s; resize:vertical; }
+.field input:focus, .field textarea:focus, .field select:focus { border-color:var(--purple); background:var(--white); }
+.field input::placeholder, .field textarea::placeholder { color:var(--ink-muted); }
+.field select { cursor:pointer; }
+
+/* GESLACHT TOGGLE */
+.geslacht-toggle { display:flex; gap:0; border-radius:8px; overflow:hidden; border:1px solid var(--border-strong); }
+.geslacht-btn { flex:1; padding:11px 14px; background:rgba(255,255,255,0.55); border:none; color:var(--ink-soft); font-family:'Jost',sans-serif; font-size:13px; font-weight:300; cursor:pointer; transition:all 0.2s; }
+.geslacht-btn:first-child { border-right:1px solid var(--border-strong); }
+.geslacht-btn.active { background:var(--purple); color:white; font-weight:400; }
+
+/* CHAKRA SLIDERS */
+.chakra-grid { display:flex; flex-direction:column; gap:14px; }
+.chakra-row { display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.3); border-radius:10px; padding:12px 16px; border:1px solid rgba(255,255,255,0.5); }
+.chakra-info { width:180px; min-width:180px; }
+.chakra-naam { font-size:13px; color:var(--ink); font-weight:400; }
+.chakra-sub { font-size:10px; color:var(--ink-muted); font-weight:300; margin-top:2px; }
+.chakra-organen { font-size:10px; color:var(--ink-muted); font-style:italic; margin-top:3px; line-height:1.4; }
+.chakra-slider-wrap { flex:1; display:flex; align-items:center; gap:12px; }
+.chakra-slider { flex:1; -webkit-appearance:none; height:5px; border-radius:3px; outline:none; cursor:pointer; }
+.chakra-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; cursor:pointer; border:2px solid white; box-shadow:0 1px 4px rgba(0,0,0,0.2); transition:transform 0.15s; }
+.chakra-slider::-webkit-slider-thumb:hover { transform:scale(1.2); }
+.chakra-value { width:28px; text-align:center; font-size:15px; font-weight:400; color:var(--purple); }
+.chakra-1 { background:linear-gradient(to right,#f5d0cc,#c0392b); } .chakra-1::-webkit-slider-thumb { background:#c0392b; }
+.chakra-2 { background:linear-gradient(to right,#fde8cc,#e67e22); } .chakra-2::-webkit-slider-thumb { background:#e67e22; }
+.chakra-3 { background:linear-gradient(to right,#fdf3cc,#d4ac0d); } .chakra-3::-webkit-slider-thumb { background:#d4ac0d; }
+.chakra-4 { background:linear-gradient(to right,#cce8d4,#27ae60); } .chakra-4::-webkit-slider-thumb { background:#27ae60; }
+.chakra-5 { background:linear-gradient(to right,#ccddf5,#2980b9); } .chakra-5::-webkit-slider-thumb { background:#2980b9; }
+.chakra-6 { background:linear-gradient(to right,#deccf0,#8e44ad); } .chakra-6::-webkit-slider-thumb { background:#8e44ad; }
+.chakra-7 { background:linear-gradient(to right,#ecddf5,#a569bd); } .chakra-7::-webkit-slider-thumb { background:#a569bd; }
+
+.chakra-suggested { font-size:10px; color:var(--orange); margin-top:3px; font-style:italic; }
+
+/* SUGGEST BADGE */
+.suggest-wrap { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.suggest-info { font-size:12px; color:var(--ink-soft); font-style:italic; }
+
+.status-bar { position:fixed; bottom:24px; right:48px; background:var(--white); border:1px solid var(--border-strong); border-radius:10px; padding:10px 20px; font-size:12px; color:var(--ink-soft); opacity:0; transform:translateY(8px); transition:all 0.3s; pointer-events:none; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+.status-bar.show { opacity:1; transform:translateY(0); }
+.status-bar.success { border-color:var(--green); color:var(--green); }
+.status-bar.error { border-color:var(--red); color:var(--red); }
+
+.modal-overlay { position:fixed; inset:0; background:rgba(26,24,20,0.5); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:100; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+.modal-overlay.show { opacity:1; pointer-events:all; }
+.modal { background:var(--white); border:1px solid var(--border-strong); border-radius:16px; padding:32px; width:480px; max-width:90vw; box-shadow:0 8px 32px rgba(0,0,0,0.12); }
+.modal h2 { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; font-style:italic; color:var(--purple); margin-bottom:8px; }
+.modal p { font-size:13px; color:var(--ink-soft); margin-bottom:24px; line-height:1.6; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
+.btn-cancel { background:transparent; border:1px solid var(--border-strong); color:var(--ink-soft); }
+.btn-cancel:hover { border-color:var(--purple); color:var(--purple); }
+.loading { display:inline-block; width:12px; height:12px; border:2px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px; vertical-align:middle; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h2>Configuratie</h2>
+    <p>Vul je Airtable gegevens in. Deze worden opgeslagen in je browser en nooit gedeeld.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="field"><label>Airtable Personal Access Token</label><input type="password" id="configToken" placeholder="pat..."></div>
+      <div class="field"><label>Base ID</label><input type="text" id="configBaseId" placeholder="app..."></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="sluitConfig()">Annuleer</button>
+      <button class="btn btn-save" onclick="slaConfigOp()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">Remindyourlife</div>
+    <div class="sidebar-title">Mirra</div>
+    <div class="sidebar-subtitle">Ledendashboard</div>
+  </div>
+  <div class="sidebar-search"><input type="text" id="zoekInput" placeholder="Zoek op naam of email..." oninput="filterLeden()"></div>
+  <div class="sidebar-actions"><button class="btn-new" onclick="nieuwLid()">+ Nieuw lid</button></div>
+  <div class="leden-list" id="ledenList"><div style="padding:20px 24px;font-size:12px;color:var(--ink-muted);text-align:center;">Configureer eerst Airtable</div></div>
+  <div class="sidebar-footer"><button class="config-btn" onclick="openConfig()">⚙ Instellingen</button></div>
+</div>
+
+<div class="main">
+  <div class="empty-state" id="emptyState">
+    <div class="icon">M</div>
+    <h2>Kies of maak een lid</h2>
+    <p>Selecteer een lid uit de lijst of maak een nieuw profiel aan.</p>
+  </div>
+
+  <div id="profielView" style="display:none;">
+    <div class="profiel-header">
+      <div class="profiel-naam-wrap">
+        <h1 id="profielNaamHeader">—</h1>
+        <div class="lid-id" id="profielIdHeader"></div>
+      </div>
+      <div class="profiel-acties">
+        <button class="btn btn-delete" onclick="verwijderLid()">Verwijder</button>
+        <button class="btn btn-save" id="saveBtn" onclick="slaLidOp()">Opslaan</button>
+      </div>
+    </div>
+
+    <!-- CONTACTINFO -->
+    <div class="section">
+      <div class="section-title">Contactinformatie</div>
+      <div class="grid-2">
+        <div class="field"><label>Naam *</label><input type="text" id="veldNaam" placeholder="Volledige naam" oninput="updateHeader()"></div>
+        <div class="field"><label>Email *</label><input type="email" id="veldEmail" placeholder="email@adres.nl"></div>
+        <div class="field"><label>Telefoon</label><input type="tel" id="veldTelefoon" placeholder="+31 6 ..."></div>
+        <div class="field">
+          <label>Geslacht</label>
+          <div class="geslacht-toggle">
+            <button class="geslacht-btn active" id="btnMan" onclick="setGeslacht('man')">Man</button>
+            <button class="geslacht-btn" id="btnVrouw" onclick="setGeslacht('vrouw')">Vrouw</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KLACHTEN -->
+    <div class="section">
+      <div class="section-title">Klachten & aandachtspunten</div>
+      <div class="grid-3">
+        <div class="field"><label>Fysieke klachten</label><textarea id="veldFysiek" rows="5" placeholder="Rugpijn, vermoeidheid, hoofdpijn..." oninput="resetSuggesties()"></textarea></div>
+        <div class="field"><label>Mentale klachten</label><textarea id="veldMentaal" rows="5" placeholder="Stress, concentratieproblemen..." oninput="resetSuggesties()"></textarea></div>
+        <div class="field"><label>Emotionele klachten</label><textarea id="veldEmotioneel" rows="5" placeholder="Angst, verdriet, boosheid..." oninput="resetSuggesties()"></textarea></div>
+      </div>
+    </div>
+
+    <!-- CHAKRA SCORES -->
+    <div class="section">
+      <div class="section-title">Chakra balans</div>
+      <div class="suggest-wrap">
+        <button class="btn btn-suggest" onclick="berekenSuggesties()">✦ Bereken suggesties op basis van klachten</button>
+        <span class="suggest-info" id="suggestInfo"></span>
+      </div>
+      <div class="chakra-grid">
+
+        <div class="chakra-row">
+          <div class="chakra-info">
+            <div class="chakra-naam">Wortel</div>
+            <div class="chakra-sub">Muladhara · C1</div>
+            <div class="chakra-organen">Onderrug, benen, knieën, botten, darmen, bijnieren</div>
+            <div class="chakra-suggested" id="sug1"></div>
+          </div>
+          <div class="chakra-slider-wrap">
+            <input type="range" class="chakra-slider chakra-1" id="chakra1" min="0" max="10" value="5" oninput="updateChakraValue(1)">
+            <span class="chakra-value" id="chakraVal1">5</span>
+          </div>
+        </div>
+
+        <div class="chakra-row">
+          <div class="chakra-info">
+            <div class="chakra-naam">Heiligbeen</div>
+            <div class="chakra-sub">Svadhisthana · C2</div>
+            <div class="chakra-organen" id="organenC2">Bekken, heupen, blaas, prostaat, teelballen</div>
+            <div class="chakra-suggested" id="sug2"></div>
+          </div>
+          <div class="chakra-slider-wrap">
+            <input type="range" class="chakra-slider chakra-2" id="chakra2" min="0" max="10" value="5" oninput="updateChakraValue(2)">
+            <span class="chakra-value" id="chakraVal2">5</span>
+          </div>
+        </div>
+
+        <div class="chakra-row">
+          <div class="chakra-info">
+            <div class="chakra-naam">Zonnevlecht</div>
+            <div class="chakra-sub">Manipura · C3</div>
+            <div class="chakra-organen">Maag, lever, alvleesklier, spijsvertering, nieren, middenrif</div>
+            <div class="chakra-suggested" id="sug3"></div>
+          </div>
+          <div class="chakra-slider-wrap">
+            <input type="range" class="chakra-slider chakra-3" id="chakra3" min="0" max="10" value="5" oninput="updateChakraValue(3)">
+            <span class="chakra-value" id="chakraVal3">5</span>
+          </div>
+        </div>
+
+        <div class="chakra-row">
+          <div class="chakra-info">
+            <div class="chakra-naam">Hart</div>
+            <div class="chakra-sub">Anahata · C4</div>
+            <div class="chakra-organen">Hart, longen, schouders, armen, borstkas, immuunsysteem</div>
+            <div class="chakra-suggested" id="sug4"></div>
+          </div>
+          <div class="chakra-slider-wrap">
+            <input type="range" class="chakra-slider chakra-4" id="chakra4" min="0" max="10" value="5" oninput="updateChakraValue(4)">
+            <span class="chakra-value" id="chakraVal4">5</span>
+          </div>
+        </div>
+
+        <div class="chakra-row">
+          <div class="chakra-info">
+            <div class="chakra-naam">Keel</div>
+            <div class="chakra-sub">Vishuddha · C5</div>
+            <div class="chakra-organen">Keel, nek, schildklier, kaak, oren, stem, luchtwegen</div>
+            <div class="chakra-suggested" id="sug5"></div>
+          </div>
+          <div class="chakra-slider-wrap">
+            <input type="range" class="chakra-slider chakra-5" id="chakra5" min="0" max="10" value="5" oninput="updateChakraValue(5)">
+            <span class="chakra-value" id="chakraVal5">5</span>
+          </div>
+        </div>
+
+        <div class="chakra-row">
+          <div class="chakra-info">
+            <div class="chakra-naam">Derde Oog</div>
+            <div class="chakra-sub">Ajna · C6</div>
+            <div class="chakra-organen">Hoofd, ogen, hersenen, sinussen, pinealklier, slaap, migraine</div>
+            <div class="chakra-suggested" id="sug6"></div>
+          </div>
+          <div class="chakra-slider-wrap">
+            <input type="range" class="chakra-slider chakra-6" id="chakra6" min="0" max="10" value="5" oninput="updateChakraValue(6)">
+            <span class="chakra-value" id="chakraVal6">5</span>
+          </div>
+        </div>
+
+        <div class="chakra-row">
+          <div class="chakra-info">
+            <div class="chakra-naam">Kruin</div>
+            <div class="chakra-sub">Sahasrara · C7</div>
+            <div class="chakra-organen">Zenuwstelsel, hersenen, bewustzijn, hoofdpijn, uitputting</div>
+            <div class="chakra-suggested" id="sug7"></div>
+          </div>
+          <div class="chakra-slider-wrap">
+            <input type="range" class="chakra-slider chakra-7" id="chakra7" min="0" max="10" value="5" oninput="updateChakraValue(7)">
+            <span class="chakra-value" id="chakraVal7">5</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHAKRA KOPPELING -->
+    <div class="section">
+      <div class="section-title">Chakra koppeling notitie</div>
+      <div class="field"><textarea id="veldChakraKoppeling" rows="4" placeholder="Verbanden tussen klachten en chakra's — voor onderzoek en Mirra context..."></textarea></div>
+    </div>
+
+    <!-- NOTITIES -->
+    <div class="section">
+      <div class="section-title">Algemene notities</div>
+      <div class="field"><textarea id="veldNotities" rows="5" placeholder="Persoonlijke observaties, sessie notities, voortgang..."></textarea></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="status-bar" id="statusBar"></div>
+
+<script>
+let AIRTABLE_TOKEN = localStorage.getItem('mirra_token') || '';
+let AIRTABLE_BASE_ID = localStorage.getItem('mirra_base_id') || '';
+const AIRTABLE_TABLE = 'Leden';
+let alleLeden = [], huidigLidId = null, huidigGeslacht = 'man';
+
+// CHAKRA KOPPELINGEN
+const chakraKoppelingen = [
+  { id: 1, naam: 'Wortel', keywords: ['onderrug','rug','been','benen','knie','knieën','bot','botten','darm','darmen','bijnier','vermoeid','moe','uitgeput','energieloos','angst','onveilig'] },
+  { id: 2, naam: 'Heiligbeen', keywords: ['bekken','heup','heupen','blaas','prostaat','teelbal','baarmoeder','eierstok','menstruatie','hormoon','vruchtbaar','lage buik','seksueel'] },
+  { id: 3, naam: 'Zonnevlecht', keywords: ['maag','lever','alvleesklier','spijsvertering','nier','middenrif','buik','zelfvertrouwen','controle','perfectionisme','stress','spanning'] },
+  { id: 4, naam: 'Hart', keywords: ['hart','long','longen','schouder','arm','borstkas','borst','immuun','verbinding','eenzaam','verdriet','rouw','liefde','relatie'] },
+  { id: 5, naam: 'Keel', keywords: ['keel','nek','schildklier','kaak','oor','oren','stem','luchtweg','communicatie','expressie','spreken','zeggen','slikken'] },
+  { id: 6, naam: 'Derde Oog', keywords: ['hoofd','oog','ogen','hersenen','sinus','pineal','slaap','migraine','hoofdpijn','intuïtie','concentratie','focus','droom'] },
+  { id: 7, naam: 'Kruin', keywords: ['zenuw','bewustzijn','uitputting','burn','zingeving','zinloos','depressie','leeg','disconnectie','isolatie'] }
+];
+
+function berekenSuggesties() {
+  const tekst = (
+    document.getElementById('veldFysiek').value + ' ' +
+    document.getElementById('veldMentaal').value + ' ' +
+    document.getElementById('veldEmotioneel').value
+  ).toLowerCase();
+
+  if (!tekst.trim()) { toonStatus('Vul eerst klachten in', ''); return; }
+
+  let scores = [5,5,5,5,5,5,5];
+  let gevonden = [false,false,false,false,false,false,false];
+
+  chakraKoppelingen.forEach((chakra, idx) => {
+    let treffers = 0;
+    chakra.keywords.forEach(kw => { if (tekst.includes(kw)) treffers++; });
+    if (treffers > 0) {
+      gevonden[idx] = true;
+      // Hoe meer klachten hoe lager de score
+      scores[idx] = Math.max(1, 5 - (treffers * 1.5));
+      scores[idx] = Math.round(scores[idx] * 10) / 10;
+    }
+  });
+
+  // Heiligbeen organen aanpassen op geslacht
+  if (huidigGeslacht === 'vrouw') {
+    const vrouwKeywords = ['baarmoeder','eierstok','menstruatie'];
+    let treffers = 0;
+    vrouwKeywords.forEach(kw => { if (tekst.includes(kw)) treffers++; });
+    if (treffers > 0) { gevonden[1] = true; scores[1] = Math.max(1, 5 - (treffers * 1.5)); }
+  }
+
+  for (let i = 1; i <= 7; i++) {
+    const sug = document.getElementById(`sug${i}`);
+    if (gevonden[i-1]) {
+      const score = Math.round(scores[i-1]);
+      sug.textContent = `✦ Suggestie: ${score}/10 op basis van klachten`;
+      document.getElementById(`chakra${i}`).value = score;
+      document.getElementById(`chakraVal${i}`).textContent = score;
+    } else {
+      sug.textContent = '';
+    }
+  }
+
+  document.getElementById('suggestInfo').textContent = 'Scores zijn berekend — je kunt ze nog handmatig aanpassen.';
+  toonStatus('Suggesties berekend ✓', 'success');
+}
+
+function resetSuggesties() {
+  for (let i = 1; i <= 7; i++) document.getElementById(`sug${i}`).textContent = '';
+  document.getElementById('suggestInfo').textContent = '';
+}
+
+function setGeslacht(g) {
+  huidigGeslacht = g;
+  document.getElementById('btnMan').classList.toggle('active', g === 'man');
+  document.getElementById('btnVrouw').classList.toggle('active', g === 'vrouw');
+  const organenC2 = document.getElementById('organenC2');
+  organenC2.textContent = g === 'vrouw'
+    ? 'Bekken, heupen, blaas, baarmoeder, eierstokken, menstruatie'
+    : 'Bekken, heupen, blaas, prostaat, teelballen';
+}
+
+function openConfig() { document.getElementById('configToken').value = AIRTABLE_TOKEN; document.getElementById('configBaseId').value = AIRTABLE_BASE_ID; document.getElementById('configModal').classList.add('show'); }
+function sluitConfig() { document.getElementById('configModal').classList.remove('show'); }
+function slaConfigOp() {
+  AIRTABLE_TOKEN = document.getElementById('configToken').value.trim();
+  AIRTABLE_BASE_ID = document.getElementById('configBaseId').value.trim();
+  localStorage.setItem('mirra_token', AIRTABLE_TOKEN);
+  localStorage.setItem('mirra_base_id', AIRTABLE_BASE_ID);
+  sluitConfig(); toonStatus('Configuratie opgeslagen', 'success'); laadLeden();
+}
+
+async function airtableRequest(method, path, body) {
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}${path || ''}`;
+  const opts = { method, headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error(`Airtable fout: ${res.status}`);
+  return res.json();
+}
+
+async function laadLeden() {
+  if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) { document.getElementById('ledenList').innerHTML = '<div style="padding:20px 24px;font-size:12px;color:var(--ink-muted);text-align:center;">Configureer eerst Airtable via ⚙ Instellingen</div>'; return; }
+  try {
+    const data = await airtableRequest('GET', '?sort[0][field]=Name&sort[0][direction]=asc');
+    alleLeden = data.records || [];
+    renderLedenList(alleLeden);
+  } catch(e) { toonStatus('Kon leden niet laden', 'error'); }
+}
+
+function renderLedenList(leden) {
+  const list = document.getElementById('ledenList');
+  if (leden.length === 0) { list.innerHTML = '<div style="padding:20px 24px;font-size:12px;color:var(--ink-muted);text-align:center;">Nog geen leden</div>'; return; }
+  list.innerHTML = leden.map(l => `
+    <div class="lid-item ${l.id === huidigLidId ? 'active' : ''}" onclick="selecteerLid('${l.id}')">
+      <div class="lid-item-naam">${l.fields.Name || '—'}</div>
+      <div class="lid-item-meta">${l.fields.Email || ''} ${l.fields.Geslacht ? '· ' + l.fields.Geslacht : ''}</div>
+    </div>`).join('');
+}
+
+function filterLeden() {
+  const q = document.getElementById('zoekInput').value.toLowerCase();
+  renderLedenList(alleLeden.filter(l => (l.fields.Name || '').toLowerCase().includes(q) || (l.fields.Email || '').toLowerCase().includes(q)));
+}
+
+function selecteerLid(id) {
+  huidigLidId = id;
+  const lid = alleLeden.find(l => l.id === id);
+  if (!lid) return;
+  const f = lid.fields;
+  document.getElementById('veldNaam').value = f.Name || '';
+  document.getElementById('veldEmail').value = f.Email || '';
+  document.getElementById('veldTelefoon').value = f.Telefoon || '';
+  document.getElementById('veldNotities').value = f.Notities || '';
+  document.getElementById('veldFysiek').value = f['Fysieke klachten'] || '';
+  document.getElementById('veldMentaal').value = f['Mentale klachten'] || '';
+  document.getElementById('veldEmotioneel').value = f['Emotionele klachten'] || '';
+  document.getElementById('veldChakraKoppeling').value = f['Chakra koppeling notitie'] || '';
+  setGeslacht(f.Geslacht || 'man');
+  const namen = ['','Chakra 1 - Wortel','Chakra 2 - Heiligbeen','Chakra 3 - Zonnevlecht','Chakra 4 - Hart','Chakra 5 - Keel','Chakra 6 - Derde Oog','Chakra 7 - Kruin'];
+  for (let i = 1; i <= 7; i++) { const val = f[namen[i]] !== undefined ? f[namen[i]] : 5; document.getElementById(`chakra${i}`).value = val; document.getElementById(`chakraVal${i}`).textContent = val; }
+  resetSuggesties();
+  document.getElementById('profielNaamHeader').textContent = f.Name || 'Nieuw lid';
+  document.getElementById('profielIdHeader').textContent = f.Email || id;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('profielView').style.display = 'block';
+  renderLedenList(alleLeden);
+}
+
+function nieuwLid() {
+  huidigLidId = null;
+  ['veldNaam','veldEmail','veldTelefoon','veldNotities','veldFysiek','veldMentaal','veldEmotioneel','veldChakraKoppeling'].forEach(id => document.getElementById(id).value = '');
+  for (let i = 1; i <= 7; i++) { document.getElementById(`chakra${i}`).value = 5; document.getElementById(`chakraVal${i}`).textContent = 5; }
+  setGeslacht('man'); resetSuggesties();
+  document.getElementById('profielNaamHeader').textContent = 'Nieuw lid';
+  document.getElementById('profielIdHeader').textContent = 'nog niet opgeslagen';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('profielView').style.display = 'block';
+  document.getElementById('veldNaam').focus();
+}
+
+async function slaLidOp() {
+  const naam = document.getElementById('veldNaam').value.trim();
+  const email = document.getElementById('veldEmail').value.trim();
+  if (!naam) { toonStatus('Naam is verplicht', 'error'); return; }
+  if (!email) { toonStatus('Email is verplicht', 'error'); return; }
+  const btn = document.getElementById('saveBtn');
+  btn.innerHTML = '<span class="loading"></span>Opslaan...'; btn.disabled = true;
+  const namen = ['','Chakra 1 - Wortel','Chakra 2 - Heiligbeen','Chakra 3 - Zonnevlecht','Chakra 4 - Hart','Chakra 5 - Keel','Chakra 6 - Derde Oog','Chakra 7 - Kruin'];
+  const fields = {
+    'Name': naam, 'Email': email,
+    'Telefoon': document.getElementById('veldTelefoon').value.trim(),
+    'Geslacht': huidigGeslacht,
+    'Notities': document.getElementById('veldNotities').value.trim(),
+    'Fysieke klachten': document.getElementById('veldFysiek').value.trim(),
+    'Mentale klachten': document.getElementById('veldMentaal').value.trim(),
+    'Emotionele klachten': document.getElementById('veldEmotioneel').value.trim(),
+    'Chakra koppeling notitie': document.getElementById('veldChakraKoppeling').value.trim(),
+  };
+  for (let i = 1; i <= 7; i++) fields[namen[i]] = parseInt(document.getElementById(`chakra${i}`).value);
+  try {
+    if (huidigLidId) { await airtableRequest('PATCH', `/${huidigLidId}`, { fields }); toonStatus('Profiel opgeslagen ✓', 'success'); }
+    else { const result = await airtableRequest('POST', '', { fields: [{ fields }] }); huidigLidId = result.records[0].id; document.getElementById('profielIdHeader').textContent = email; toonStatus('Nieuw lid aangemaakt ✓', 'success'); }
+    await laadLeden();
+  } catch(e) { toonStatus('Opslaan mislukt', 'error'); }
+  btn.innerHTML = 'Opslaan'; btn.disabled = false;
+}
+
+async function verwijderLid() {
+  if (!huidigLidId) return;
+  if (!confirm('Weet je zeker dat je dit lid wilt verwijderen?')) return;
+  try {
+    await airtableRequest('DELETE', `/${huidigLidId}`);
+    huidigLidId = null;
+    document.getElementById('profielView').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+    toonStatus('Lid verwijderd', 'success'); await laadLeden();
+  } catch(e) { toonStatus('Verwijderen mislukt', 'error'); }
+}
+
+function updateHeader() { document.getElementById('profielNaamHeader').textContent = document.getElementById('veldNaam').value || 'Nieuw lid'; }
+function updateChakraValue(n) { document.getElementById(`chakraVal${n}`).textContent = document.getElementById(`chakra${n}`).value; }
+function toonStatus(tekst, type) { const bar = document.getElementById('statusBar'); bar.textContent = tekst; bar.className = `status-bar show ${type || ''}`; setTimeout(() => bar.className = 'status-bar', 3000); }
+
+window.addEventListener('load', () => {
+  if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) setTimeout(openConfig, 500);
+  else laadLeden();
+});
+</script>
+</body>
+</html>
