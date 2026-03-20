@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Jouw Chakra Balans · Remindyourlife</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #CFB997;
+  --white: #fdfaf6;
+  --purple: #8D3F79;
+  --purple-soft: rgba(141,63,121,0.1);
+  --purple-border: rgba(141,63,121,0.22);
+  --green: #3F7652;
+  --ink: #1a1814;
+  --ink-soft: rgba(26,24,20,0.52);
+  --ink-muted: rgba(26,24,20,0.35);
+
+  --c1: #c0392b;
+  --c2: #e67e22;
+  --c3: #d4ac0d;
+  --c4: #27ae60;
+  --c5: #2980b9;
+  --c6: #8e44ad;
+  --c7: #a569bd;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { height:100%; }
+body {
+  min-height:100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.3) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(141,63,121,0.08) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: rgba(253,250,246,0.45);
+  border-bottom: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(10px);
+}
+
+.brand { font-size: 9px; letter-spacing: 3.5px; text-transform: uppercase; color: var(--ink-soft); }
+.members-badge { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); border: 1px solid var(--purple-border); padding: 4px 11px; border-radius: 20px; background: var(--purple-soft); }
+
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.page-title .label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.page-title h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--purple);
+  font-style: italic;
+}
+
+.page-title .naam {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  display: block;
+}
+
+.overall-score {
+  text-align: center;
+  margin: 20px 0 32px;
+}
+
+.overall-ring {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 8px;
+  position: relative;
+}
+
+.overall-ring svg { transform: rotate(-90deg); }
+
+.overall-ring .ring-bg { fill: none; stroke: rgba(255,255,255,0.4); stroke-width: 7; }
+.overall-ring .ring-fill { fill: none; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1); }
+
+.overall-ring .ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--purple);
+  transform: none;
+}
+
+.overall-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* MAIN LAYOUT */
+.main-layout {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+/* BODY SVG */
+.body-wrap {
+  flex-shrink: 0;
+  width: 200px;
+  position: sticky;
+  top: 20px;
+}
+
+.body-svg-container {
+  position: relative;
+  width: 200px;
+}
+
+.body-svg-container svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 24px rgba(141,63,121,0.15));
+}
+
+/* CHAKRA LIJST */
+.chakra-lijst {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chakra-card {
+  background: rgba(253,250,246,0.5);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 14px;
+  padding: 16px 20px;
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: slideIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+.chakra-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(141,63,121,0.1); }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.chakra-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.chakra-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.chakra-card-info { flex: 1; }
+
+.chakra-card-naam {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 1px;
+}
+
+.chakra-card-sub {
+  font-size: 10px;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+}
+
+.chakra-score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chakra-score-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  min-width: 36px;
+  text-align: right;
+}
+
+.chakra-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(26,24,20,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.chakra-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  width: 0%;
+}
+
+.chakra-organen {
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-style: italic;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.chakra-status {
+  font-size: 11px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+/* EMAIL FORM */
+.email-form {
+  max-width: 380px;
+  margin: 40px auto;
+  text-align: center;
+}
+
+.email-form h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--purple);
+  margin-bottom: 8px;
+}
+
+.email-form p {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.email-form input {
+  width: 100%;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(26,24,20,0.2);
+  border-radius: 10px;
+  padding: 13px 16px;
+  color: var(--ink);
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.email-form input:focus { border-color: var(--purple); background: var(--white); }
+.email-form input::placeholder { color: var(--ink-muted); }
+
+.email-form button {
+  width: 100%;
+  background: var(--green);
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  color: white;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 10px rgba(63,118,82,0.3);
+}
+
+.email-form button:hover { background: #336344; }
+
+.fout-melding {
+  font-size: 13px;
+  color: #9b3a38;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--purple);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: blink 1.2s infinite;
+}
+
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink {
+  0%,80%,100% { opacity: 0.2; transform: scale(1); }
+  40% { opacity: 1; transform: scale(1.3); }
+}
+
+.loading-tekst {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 600px) {
+  .main-layout { flex-direction: column; align-items: center; }
+  .body-wrap { position: relative; top: 0; width: 160px; }
+  .body-svg-container { width: 160px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Remindyourlife</div>
+  <div class="members-badge">Members Club</div>
+</header>
+
+<div class="page-wrap">
+
+  <!-- EMAIL FORM -->
+  <div id="emailForm" class="email-form">
+    <h2>Jouw chakra balans</h2>
+    <p>Vul je emailadres in om jouw persoonlijke chakra balans te zien.</p>
+    <input type="email" id="emailInput" placeholder="jouw@email.nl" onkeydown="if(event.key==='Enter')laadProfiel()">
+    <button onclick="laadProfiel()">Bekijk mijn balans</button>
+    <div class="fout-melding" id="foutMelding"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loadingState" class="loading-state" style="display:none;">
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <div class="loading-tekst">Jouw balans wordt geladen...</div>
+  </div>
+
+  <!-- CHAKRA PAGINA -->
+  <div id="chakraPagina" style="display:none;">
+
+    <div class="page-title">
+      <span class="label">Jouw holistische balans</span>
+      <h1>Chakra overzicht</h1>
+      <span class="naam" id="lidNaamTitel"></span>
+    </div>
+
+    <div class="overall-score">
+      <div class="overall-ring">
+        <svg viewBox="0 0 90 90" width="90" height="90">
+          <circle class="ring-bg" cx="45" cy="45" r="38"/>
+          <circle class="ring-fill" id="overallRing" cx="45" cy="45" r="38" stroke="url(#rainbowGrad)"
+            stroke-dasharray="238.76"
+            stroke-dashoffset="238.76"/>
+          <defs>
+            <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#c0392b"/>
+              <stop offset="16%" stop-color="#e67e22"/>
+              <stop offset="33%" stop-color="#d4ac0d"/>
+              <stop offset="50%" stop-color="#27ae60"/>
+              <stop offset="66%" stop-color="#2980b9"/>
+              <stop offset="83%" stop-color="#8e44ad"/>
+              <stop offset="100%" stop-color="#a569bd"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="ring-text" id="overallPct">0%</div>
+      </div>
+      <div class="overall-label">Totale balans</div>
+    </div>
+
+    <div class="main-layout">
+
+      <!-- LICHAAM SVG -->
+      <div class="body-wrap">
+        <div class="body-svg-container">
+          <svg viewBox="0 0 200 480" xmlns="http://www.w3.org/2000/svg" id="lichaamSvg">
+            <defs>
+              <!-- Chakra gradiënten voor het lichaam -->
+              <radialGradient id="g1" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#c0392b" id="g1stop" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#c0392b" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="g2" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#e67e22" id="g2stop" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#e67e22" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="g3" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#d4ac0d" id="g3stop" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#d4ac0d" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="g4" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#27ae60" id="g4stop" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#27ae60" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="g5" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#2980b9" id="g5stop" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#2980b9" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="g6" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#8e44ad" id="g6stop" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#8e44ad" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="g7" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#a569bd" id="g7stop" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#a569bd" stop-opacity="0"/>
+              </radialGradient>
+              <clipPath id="bodyClip">
+                <path d="M100,8 C85,8 72,16 68,28 C64,40 65,52 68,60 C58,64 50,72 48,82 C46,92 48,120 50,140 L46,280 C44,290 42,310 44,330 L48,400 C48,420 50,440 52,460 L72,460 L76,360 L80,280 L100,260 L120,280 L124,360 L128,460 L148,460 C150,440 152,420 152,400 L156,330 C158,310 156,290 154,280 L150,140 C152,120 154,92 152,82 C150,72 142,64 132,60 C135,52 136,40 132,28 C128,16 115,8 100,8 Z"/>
+              </clipPath>
+            </defs>
+
+            <!-- Lichaam outline -->
+            <path d="M100,8 C85,8 72,16 68,28 C64,40 65,52 68,60 C58,64 50,72 48,82 C46,92 48,120 50,140 L46,280 C44,290 42,310 44,330 L48,400 C48,420 50,440 52,460 L72,460 L76,360 L80,280 L100,260 L120,280 L124,360 L128,460 L148,460 C150,440 152,420 152,400 L156,330 C158,310 156,290 154,280 L150,140 C152,120 154,92 152,82 C150,72 142,64 132,60 C135,52 136,40 132,28 C128,16 115,8 100,8 Z"
+              fill="rgba(253,250,246,0.35)" stroke="rgba(141,63,121,0.3)" stroke-width="1.5"/>
+
+            <!-- Chakra gloed lagen — binnen body clip -->
+            <g clip-path="url(#bodyClip)">
+              <!-- C7 Kruin -->
+              <ellipse cx="100" cy="20" rx="45" ry="35" fill="url(#g7)" id="body-c7" opacity="0"/>
+              <!-- C6 Derde Oog -->
+              <ellipse cx="100" cy="45" rx="40" ry="30" fill="url(#g6)" id="body-c6" opacity="0"/>
+              <!-- C5 Keel -->
+              <ellipse cx="100" cy="80" rx="40" ry="35" fill="url(#g5)" id="body-c5" opacity="0"/>
+              <!-- C4 Hart -->
+              <ellipse cx="100" cy="145" rx="55" ry="55" fill="url(#g4)" id="body-c4" opacity="0"/>
+              <!-- C3 Zonnevlecht -->
+              <ellipse cx="100" cy="210" rx="50" ry="45" fill="url(#g3)" id="body-c3" opacity="0"/>
+              <!-- C2 Heiligbeen -->
+              <ellipse cx="100" cy="280" rx="50" ry="45" fill="url(#g2)" id="body-c2" opacity="0"/>
+              <!-- C1 Wortel -->
+              <ellipse cx="100" cy="350" rx="55" ry="60" fill="url(#g1)" id="body-c1" opacity="0"/>
+            </g>
+
+            <!-- Chakra punten -->
+            <circle cx="100" cy="20" r="5" fill="#a569bd" id="dot7" opacity="0.4"/>
+            <circle cx="100" cy="45" r="5" fill="#8e44ad" id="dot6" opacity="0.4"/>
+            <circle cx="100" cy="80" r="5" fill="#2980b9" id="dot5" opacity="0.4"/>
+            <circle cx="100" cy="145" r="5" fill="#27ae60" id="dot4" opacity="0.4"/>
+            <circle cx="100" cy="210" r="5" fill="#d4ac0d" id="dot3" opacity="0.4"/>
+            <circle cx="100" cy="275" r="5" fill="#e67e22" id="dot2" opacity="0.4"/>
+            <circle cx="100" cy="340" r="5" fill="#c0392b" id="dot1" opacity="0.4"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- CHAKRA KAARTEN -->
+      <div class="chakra-lijst" id="chakraLijst"></div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// VULL HIER JOUW AIRTABLE GEGEVENS IN
+// ============================================================
+const AIRTABLE_TOKEN = 'patu1fgdZcHFt5LvR.b9c91a025212a04602feed3869737413c6632354464087a30ea4c7029012bbe0';
+const AIRTABLE_BASE_ID = 'appIxxh4IuDxdGrfY';
+const AIRTABLE_TABLE = 'Leden';
+// ============================================================
+
+const chakraData = [
+  { id:7, naam:'Kruin', sanskrit:'Sahasrara', kleur:'#a569bd', organen:'Zenuwstelsel, hersenen, bewustzijn', airtable:'Chakra 7 - Kruin', bodyEl:'body-c7', dot:'dot7' },
+  { id:6, naam:'Derde Oog', sanskrit:'Ajna', kleur:'#8e44ad', organen:'Hoofd, ogen, hersenen, pinealklier, slaap', airtable:'Chakra 6 - Derde Oog', bodyEl:'body-c6', dot:'dot6' },
+  { id:5, naam:'Keel', sanskrit:'Vishuddha', kleur:'#2980b9', organen:'Keel, nek, schildklier, kaak, luchtwegen', airtable:'Chakra 5 - Keel', bodyEl:'body-c5', dot:'dot5' },
+  { id:4, naam:'Hart', sanskrit:'Anahata', kleur:'#27ae60', organen:'Hart, longen, schouders, borstkas', airtable:'Chakra 4 - Hart', bodyEl:'body-c4', dot:'dot4' },
+  { id:3, naam:'Zonnevlecht', sanskrit:'Manipura', kleur:'#d4ac0d', organen:'Maag, lever, spijsvertering, nieren', airtable:'Chakra 3 - Zonnevlecht', bodyEl:'body-c3', dot:'dot3' },
+  { id:2, naam:'Heiligbeen', sanskrit:'Svadhisthana', kleur:'#e67e22', organen:'Bekken, heupen, blaas, voortplanting', airtable:'Chakra 2 - Heiligbeen', bodyEl:'body-c2', dot:'dot2' },
+  { id:1, naam:'Wortel', sanskrit:'Muladhara', kleur:'#c0392b', organen:'Onderrug, benen, botten, darmen', airtable:'Chakra 1 - Wortel', bodyEl:'body-c1', dot:'dot1' },
+];
+
+function statusTekst(score) {
+  if (score >= 8) return { tekst: 'Sterk in balans', kleur: '#27ae60' };
+  if (score >= 6) return { tekst: 'Redelijk in balans', kleur: '#d4ac0d' };
+  if (score >= 4) return { tekst: 'Aandacht nodig', kleur: '#e67e22' };
+  return { tekst: 'Uit balans', kleur: '#c0392b' };
+}
+
+async function laadProfiel() {
+  const email = document.getElementById('emailInput').value.trim().toLowerCase();
+  if (!email) { document.getElementById('foutMelding').textContent = 'Vul je emailadres in.'; return; }
+
+  document.getElementById('emailForm').style.display = 'none';
+  document.getElementById('loadingState').style.display = 'block';
+
+  try {
+    const filter = encodeURIComponent(`{Email} = "${email}"`);
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula=${filter}&maxRecords=1`;
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` } });
+    const data = await res.json();
+
+    if (!data.records || data.records.length === 0) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('emailForm').style.display = 'block';
+      document.getElementById('foutMelding').textContent = 'Geen profiel gevonden voor dit emailadres.';
+      return;
+    }
+
+    const profiel = data.records[0].fields;
+    toonChakraPagina(profiel);
+
+  } catch(e) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('emailForm').style.display = 'block';
+    document.getElementById('foutMelding').textContent = 'Er ging iets mis. Probeer het opnieuw.';
+  }
+}
+
+function toonChakraPagina(profiel) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('chakraPagina').style.display = 'block';
+  document.getElementById('lidNaamTitel').textContent = profiel.Name || '';
+
+  // Scores ophalen
+  const scores = {};
+  chakraData.forEach(c => { scores[c.id] = profiel[c.airtable] !== undefined ? profiel[c.airtable] : 5; });
+
+  // Overall score
+  const gemiddelde = Object.values(scores).reduce((a,b) => a+b, 0) / 7;
+  const pct = Math.round((gemiddelde / 10) * 100);
+
+  setTimeout(() => {
+    // Overall ring animeren
+    const omtrek = 238.76;
+    const offset = omtrek - (omtrek * pct / 100);
+    document.getElementById('overallRing').style.strokeDashoffset = offset;
+    document.getElementById('overallPct').textContent = pct + '%';
+
+    // Lichaam animeren
+    chakraData.forEach(c => {
+      const score = scores[c.id];
+      const opacity = (score / 10) * 0.85;
+      const bodyEl = document.getElementById(c.bodyEl);
+      const dotEl = document.getElementById(c.dot);
+      if (bodyEl) {
+        bodyEl.style.transition = 'opacity 1.5s ease';
+        bodyEl.style.opacity = opacity;
+      }
+      if (dotEl) {
+        dotEl.style.transition = 'opacity 1.5s ease';
+        dotEl.style.opacity = 0.4 + (score / 10) * 0.6;
+      }
+    });
+  }, 100);
+
+  // Chakra kaarten bouwen — van boven naar onder (7 naar 1)
+  const lijst = document.getElementById('chakraLijst');
+  lijst.innerHTML = '';
+  chakraData.forEach((c, idx) => {
+    const score = scores[c.id];
+    const status = statusTekst(score);
+    const pctBar = (score / 10) * 100;
+
+    const card = document.createElement('div');
+    card.className = 'chakra-card';
+    card.style.animationDelay = `${idx * 0.08}s`;
+    card.innerHTML = `
+      <div class="chakra-card-header">
+        <div class="chakra-dot" style="background:${c.kleur}; color:${c.kleur}"></div>
+        <div class="chakra-card-info">
+          <div class="chakra-card-naam">${c.naam}</div>
+          <div class="chakra-card-sub">${c.sanskrit}</div>
+        </div>
+        <div class="chakra-score-wrap">
+          <span class="chakra-score-num" style="color:${c.kleur}">${score}<span style="font-size:12px;color:var(--ink-muted)">/10</span></span>
+        </div>
+      </div>
+      <div class="chakra-bar-bg">
+        <div class="chakra-bar-fill" id="bar-${c.id}" style="background:${c.kleur}; width:0%"></div>
+      </div>
+      <div class="chakra-status" style="color:${status.kleur}">${status.tekst}</div>
+      <div class="chakra-organen">${c.organen}</div>
+    `;
+    lijst.appendChild(card);
+
+    setTimeout(() => {
+      document.getElementById(`bar-${c.id}`).style.transition = 'width 1.2s cubic-bezier(0.4,0,0.2,1)';
+      document.getElementById(`bar-${c.id}`).style.width = pctBar + '%';
+    }, 200 + idx * 80);
+  });
+}
+
+// Check of email al opgeslagen is
+window.addEventListener('load', () => {
+  try {
+    const opgeslagenEmail = localStorage.getItem('mirra_lid_email');
+    if (opgeslagenEmail) {
+      document.getElementById('emailInput').value = opgeslagenEmail;
+    }
+  } catch(e) {}
+});
+</script>
+</body>
+</html>
