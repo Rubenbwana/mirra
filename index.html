@@ -53,6 +53,8 @@ textarea::placeholder { color:var(--ink-soft); }
 .send-btn { background:var(--green); border:none; color:white; width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.2s,transform 0.15s; box-shadow:0 2px 8px rgba(63,118,82,0.3); touch-action:manipulation; }
 .send-btn:active{background:#336344;transform:scale(0.95);} .send-btn:disabled{opacity:0.4;}
 .hint { text-align:center; font-size:9px; color:var(--ink-soft); letter-spacing:1px; margin-top:7px; }
+.reset-btn { background:transparent; border:none; font-size:9px; color:var(--ink-soft); letter-spacing:1px; text-decoration:underline; cursor:pointer; margin-top:4px; display:block; width:100%; text-align:center; padding:2px; font-family:'Jost',sans-serif; }
+.reset-btn:hover { color:var(--purple); }
 .error-msg { font-size:14px; color:#8b3a3a; text-align:center; padding:8px; font-family:'Cormorant Garamond',serif; font-style:italic; }
 @media(max-height:500px){.hero{padding:8px 20px 4px;}.hero h1{font-size:26px;}.hero .subtitle{display:none;}.divider{height:10px;}}
 </style>
@@ -78,6 +80,7 @@ textarea::placeholder { color:var(--ink-soft); }
       </button>
     </div>
     <p class="hint">Exclusief voor Members Club · Vertrouwelijk</p>
+    <button class="reset-btn" onclick="resetAccount()">Ander account koppelen</button>
   </div>
 </div>
 <script>
@@ -347,6 +350,15 @@ async function initMirra() {
       if(data.content&&data.content[0]) appendMessage('assistant',data.content[0].text);
     } catch(e) { removeTyping(); }
   }
+}
+
+function resetAccount() {
+  if (!confirm('Wil je een ander account koppelen? Je huidige sessie wordt beëindigd.')) return;
+  try {
+    localStorage.removeItem('mirra_lid_naam');
+    localStorage.removeItem('mirra_lid_email');
+  } catch(e) {}
+  window.location.reload();
 }
 
 window.addEventListener('resize',()=>setTimeout(scrollToBottom,100));
