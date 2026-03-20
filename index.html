@@ -20,16 +20,27 @@
 html { height:100%; overflow:hidden; position:fixed; width:100%; }
 body { height:100%; width:100%; background:var(--bg); color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; display:flex; flex-direction:column; overflow:hidden; padding-bottom:env(safe-area-inset-bottom); }
 body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,0.28) 0%,transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(141,63,121,0.07) 0%,transparent 50%); pointer-events:none; z-index:0; }
+
 header { position:relative; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:14px 20px; background:rgba(253,250,246,0.45); border-bottom:1px solid rgba(255,255,255,0.55); backdrop-filter:blur(10px); flex-shrink:0; }
 .brand { font-size:9px; letter-spacing:3.5px; text-transform:uppercase; color:var(--ink-soft); }
 .members-badge { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--purple); border:1px solid var(--purple-border); padding:4px 11px; border-radius:20px; background:var(--purple-soft); }
-.hero { position:relative; z-index:10; text-align:center; padding:20px 20px 10px; flex-shrink:0; }
+
+.hero { position:relative; z-index:10; text-align:center; padding:14px 20px 8px; flex-shrink:0; }
 .hero .label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px; display:block; }
-.hero h1 { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:300; letter-spacing:3px; line-height:1; color:var(--purple); margin-bottom:4px; }
+.hero h1 { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:300; letter-spacing:3px; line-height:1; color:var(--purple); margin-bottom:3px; }
 .hero h1 em { font-style:italic; }
-.hero .subtitle { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:var(--ink-soft); }
-.divider { width:1px; height:18px; background:linear-gradient(to bottom,transparent,rgba(141,63,121,0.35),transparent); margin:0 auto; position:relative; z-index:10; flex-shrink:0; }
-.chat-wrap { position:relative; z-index:10; flex:1; display:flex; flex-direction:column; padding:12px 16px 0; min-height:0; }
+.hero .subtitle { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px; color:var(--ink-soft); }
+
+/* TABS */
+.tabs { position:relative; z-index:10; display:flex; border-bottom:1px solid rgba(255,255,255,0.5); flex-shrink:0; background:rgba(253,250,246,0.3); }
+.tab-btn { flex:1; padding:10px; font-family:'Jost',sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-soft); background:transparent; border:none; cursor:pointer; transition:all 0.2s; border-bottom:2px solid transparent; }
+.tab-btn.active { color:var(--purple); border-bottom-color:var(--purple); background:rgba(253,250,246,0.3); }
+
+/* CHAT TAB */
+.tab-content { flex:1; display:none; flex-direction:column; min-height:0; position:relative; z-index:10; }
+.tab-content.active { display:flex; }
+
+.chat-wrap { flex:1; display:flex; flex-direction:column; padding:12px 16px 0; min-height:0; }
 .chat-log { flex:1; display:flex; flex-direction:column; gap:12px; overflow-y:auto; overflow-x:hidden; padding-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
 .chat-log::-webkit-scrollbar { display:none; }
 .msg { display:flex; gap:9px; animation:fadeUp 0.35s ease forwards; opacity:0; }
@@ -45,18 +56,57 @@ header { position:relative; z-index:10; display:flex; justify-content:space-betw
 .typing span { width:5px; height:5px; background:var(--purple); border-radius:50%; opacity:0.3; animation:blink 1.2s infinite; }
 .typing span:nth-child(2){animation-delay:0.2s;} .typing span:nth-child(3){animation-delay:0.4s;}
 @keyframes blink{0%,80%,100%{opacity:0.2;transform:scale(1);}40%{opacity:1;transform:scale(1.3);}}
-.input-area { flex-shrink:0; padding:10px 0 16px; }
+
+.input-area { flex-shrink:0; padding:10px 16px 16px; }
 .input-wrap { display:flex; gap:8px; align-items:flex-end; background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.85); border-radius:16px; padding:11px 12px; backdrop-filter:blur(8px); box-shadow:0 2px 10px rgba(0,0,0,0.05); transition:border-color 0.25s,box-shadow 0.25s; }
 .input-wrap:focus-within { border-color:rgba(141,63,121,0.35); box-shadow:0 2px 16px rgba(141,63,121,0.1); }
 textarea { flex:1; background:transparent; border:none; outline:none; color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; font-size:16px; line-height:1.5; resize:none; max-height:90px; min-height:24px; }
 textarea::placeholder { color:var(--ink-soft); }
 .send-btn { background:var(--green); border:none; color:white; width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.2s,transform 0.15s; box-shadow:0 2px 8px rgba(63,118,82,0.3); touch-action:manipulation; }
 .send-btn:active{background:#336344;transform:scale(0.95);} .send-btn:disabled{opacity:0.4;}
-.hint { text-align:center; font-size:9px; color:var(--ink-soft); letter-spacing:1px; margin-top:7px; }
-.reset-btn { background:transparent; border:none; font-size:9px; color:var(--ink-soft); letter-spacing:1px; text-decoration:underline; cursor:pointer; margin-top:4px; display:block; width:100%; text-align:center; padding:2px; font-family:'Jost',sans-serif; }
+.hint-row { display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 0 0; }
+.hint { text-align:center; font-size:9px; color:var(--ink-soft); letter-spacing:1px; }
+.reset-btn { background:transparent; border:none; font-size:9px; color:var(--ink-soft); letter-spacing:1px; text-decoration:underline; cursor:pointer; font-family:'Jost',sans-serif; padding:2px; }
 .reset-btn:hover { color:var(--purple); }
 .error-msg { font-size:14px; color:#8b3a3a; text-align:center; padding:8px; font-family:'Cormorant Garamond',serif; font-style:italic; }
-@media(max-height:500px){.hero{padding:8px 20px 4px;}.hero h1{font-size:26px;}.hero .subtitle{display:none;}.divider{height:10px;}}
+
+/* CHAKRA TAB */
+.chakra-tab { flex:1; overflow-y:auto; display:flex; flex-direction:column; background:#0a0a14; scrollbar-width:none; }
+.chakra-tab::-webkit-scrollbar { display:none; }
+
+.chakra-header { text-align:center; padding:16px 20px 8px; flex-shrink:0; }
+.chakra-header .naam { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:18px; color:rgba(180,160,220,0.8); margin-bottom:2px; display:block; }
+.chakra-header .label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.3); }
+
+/* OVERALL SCORE */
+.overall-wrap { text-align:center; padding:8px 20px 12px; flex-shrink:0; }
+.overall-ring { width:72px; height:72px; margin:0 auto 4px; position:relative; }
+.overall-ring svg { transform:rotate(-90deg); }
+.overall-ring .ring-bg { fill:none; stroke:rgba(255,255,255,0.1); stroke-width:6; }
+.overall-ring .ring-fill { fill:none; stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 2s cubic-bezier(0.4,0,0.2,1); }
+.overall-pct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:18px; color:rgba(200,180,255,0.9); }
+.overall-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.3); }
+
+/* MEDITATIE BODY + CHAKRA VISUALISATIE */
+.meditatie-wrap { flex-shrink:0; display:flex; justify-content:center; padding:0 20px 8px; }
+
+.meditatie-wrap svg { width:min(260px, 70vw); height:auto; filter:drop-shadow(0 0 30px rgba(100,80,200,0.4)); }
+
+/* CHAKRA LIJST ONDER */
+.chakra-scores-lijst { padding:8px 16px 24px; display:flex; flex-direction:column; gap:8px; }
+
+.chakra-score-rij { display:flex; align-items:center; gap:10px; padding:8px 12px; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.07); }
+.chakra-dot-small { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.chakra-rij-info { flex:1; }
+.chakra-rij-naam { font-size:12px; color:rgba(255,255,255,0.7); font-weight:400; }
+.chakra-rij-organen { font-size:10px; color:rgba(255,255,255,0.3); font-style:italic; }
+.chakra-rij-bar-bg { flex:2; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; }
+.chakra-rij-bar { height:100%; border-radius:2px; width:0%; transition:width 1.5s cubic-bezier(0.4,0,0.2,1); }
+.chakra-rij-score { font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:300; min-width:28px; text-align:right; }
+
+.geen-data { text-align:center; padding:20px; color:rgba(255,255,255,0.3); font-style:italic; font-family:'Cormorant Garamond',serif; font-size:15px; }
+
+@media(max-height:500px){.hero{padding:6px 20px 4px;}.hero h1{font-size:22px;}.hero .subtitle{display:none;}}
 </style>
 </head>
 <body>
@@ -64,14 +114,23 @@ textarea::placeholder { color:var(--ink-soft); }
   <div class="brand">Remindyourlife</div>
   <div class="members-badge">Members Club</div>
 </header>
+
 <div class="hero">
   <span class="label">Jouw holistische gids</span>
   <h1><em>Mirra</em></h1>
   <p class="subtitle">Een spiegel voor wie je werkelijk bent</p>
 </div>
-<div class="divider"></div>
-<div class="chat-wrap">
-  <div class="chat-log" id="chatLog"></div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('chat')">Gesprek</button>
+  <button class="tab-btn" onclick="switchTab('chakra')">Chakra balans</button>
+</div>
+
+<!-- CHAT TAB -->
+<div class="tab-content active" id="tab-chat">
+  <div class="chat-wrap">
+    <div class="chat-log" id="chatLog"></div>
+  </div>
   <div class="input-area">
     <div class="input-wrap">
       <textarea id="userInput" placeholder="Schrijf je bericht..." rows="1" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
@@ -79,10 +138,171 @@ textarea::placeholder { color:var(--ink-soft); }
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
       </button>
     </div>
-    <p class="hint">Exclusief voor Members Club · Vertrouwelijk</p>
-    <button class="reset-btn" onclick="resetAccount()">Ander account koppelen</button>
+    <div class="hint-row">
+      <span class="hint">Exclusief voor Members Club · Vertrouwelijk</span>
+      <button class="reset-btn" onclick="resetAccount()">Ander account koppelen</button>
+    </div>
   </div>
 </div>
+
+<!-- CHAKRA TAB -->
+<div class="tab-content" id="tab-chakra">
+  <div class="chakra-tab" id="chakraTab">
+    <div class="chakra-header">
+      <span class="naam" id="chakraNaam"></span>
+      <span class="label">Energetische balans</span>
+    </div>
+
+    <div class="overall-wrap">
+      <div class="overall-ring">
+        <svg viewBox="0 0 72 72" width="72" height="72">
+          <circle class="ring-bg" cx="36" cy="36" r="30"/>
+          <circle class="ring-fill" id="overallRing" cx="36" cy="36" r="30"
+            stroke="url(#rainbowGrad2)"
+            stroke-dasharray="188.5"
+            stroke-dashoffset="188.5"/>
+          <defs>
+            <linearGradient id="rainbowGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#c0392b"/>
+              <stop offset="33%" stop-color="#27ae60"/>
+              <stop offset="66%" stop-color="#2980b9"/>
+              <stop offset="100%" stop-color="#a569bd"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="overall-pct" id="overallPct">0%</div>
+      </div>
+      <div class="overall-label">Totale balans</div>
+    </div>
+
+    <!-- MEDITERENDE FIGUUR MET CHAKRA GLOED -->
+    <div class="meditatie-wrap">
+      <svg viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Aura gloed -->
+          <radialGradient id="aura" cx="50%" cy="45%" r="55%">
+            <stop offset="0%" stop-color="#1a1060" stop-opacity="0.0"/>
+            <stop offset="60%" stop-color="#0d0830" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#050310" stop-opacity="1"/>
+          </radialGradient>
+
+          <!-- Chakra gloed gradiënten -->
+          <radialGradient id="cg1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#c0392b" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#c0392b" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="cg2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#e67e22" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#e67e22" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="cg3" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#d4ac0d" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#d4ac0d" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="cg4" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#27ae60" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#27ae60" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="cg5" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#2980b9" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#2980b9" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="cg6" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#8e44ad" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#8e44ad" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="cg7" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#c39bd3" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#c39bd3" stop-opacity="0"/>
+          </radialGradient>
+
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="softglow">
+            <feGaussianBlur stdDeviation="8" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Donkere achtergrond -->
+        <rect width="300" height="420" fill="#0a0a14" rx="16"/>
+
+        <!-- Aura achtergrond -->
+        <ellipse cx="150" cy="180" rx="140" ry="180" fill="url(#aura)"/>
+
+        <!-- Blauwe aura gloed rondom lichaam -->
+        <ellipse cx="150" cy="200" rx="110" ry="160" fill="none" stroke="#3a5f9a" stroke-width="1.5" opacity="0.3"/>
+        <ellipse cx="150" cy="200" rx="95" ry="145" fill="none" stroke="#4a6faa" stroke-width="1" opacity="0.2"/>
+        <ellipse cx="150" cy="200" rx="80" ry="130" fill="rgba(40,60,140,0.15)"/>
+
+        <!-- MEDITEREND LICHAAM -->
+        <!-- Hoofd -->
+        <ellipse cx="150" cy="75" rx="32" ry="36" fill="rgba(80,100,180,0.5)" stroke="rgba(100,130,200,0.6)" stroke-width="1.5"/>
+        <!-- Nek -->
+        <rect x="142" y="108" width="16" height="18" rx="4" fill="rgba(80,100,180,0.5)"/>
+        <!-- Schouders en romp -->
+        <path d="M90,125 C90,120 110,115 150,115 C190,115 210,120 210,125 L215,200 C215,215 200,225 150,225 C100,225 85,215 85,200 Z" fill="rgba(70,90,170,0.5)" stroke="rgba(100,130,200,0.5)" stroke-width="1.5"/>
+        <!-- Armen links -->
+        <path d="M90,130 C75,135 65,155 62,180 C60,195 65,210 72,215 C78,218 85,210 88,195 C91,180 92,160 95,145 Z" fill="rgba(70,90,170,0.45)" stroke="rgba(100,130,200,0.4)" stroke-width="1"/>
+        <!-- Armen rechts -->
+        <path d="M210,130 C225,135 235,155 238,180 C240,195 235,210 228,215 C222,218 215,210 212,195 C209,180 208,160 205,145 Z" fill="rgba(70,90,170,0.45)" stroke="rgba(100,130,200,0.4)" stroke-width="1"/>
+        <!-- Schoot/benen gekruist -->
+        <ellipse cx="150" cy="310" rx="90" ry="28" fill="rgba(70,90,170,0.5)" stroke="rgba(100,130,200,0.5)" stroke-width="1.5"/>
+        <!-- Linker been -->
+        <path d="M85,300 C75,295 65,290 60,295 C55,300 60,315 70,320 C85,325 110,320 125,315 L120,300 Z" fill="rgba(70,90,170,0.45)" stroke="rgba(100,130,200,0.4)" stroke-width="1"/>
+        <!-- Rechter been -->
+        <path d="M215,300 C225,295 235,290 240,295 C245,300 240,315 230,320 C215,325 190,320 175,315 L180,300 Z" fill="rgba(70,90,170,0.45)" stroke="rgba(100,130,200,0.4)" stroke-width="1"/>
+        <!-- Handen in schoot -->
+        <ellipse cx="125" cy="318" rx="22" ry="12" fill="rgba(80,100,180,0.5)" stroke="rgba(100,130,200,0.4)" stroke-width="1"/>
+        <ellipse cx="175" cy="318" rx="22" ry="12" fill="rgba(80,100,180,0.5)" stroke="rgba(100,130,200,0.4)" stroke-width="1"/>
+
+        <!-- CHAKRA GLOED LAGEN -->
+        <!-- C1 Wortel — perineum, onderkant romp -->
+        <ellipse cx="150" cy="295" rx="50" ry="35" fill="url(#cg1)" id="mc1" opacity="0" filter="url(#softglow)"/>
+        <!-- C2 Heiligbeen — laag in buik -->
+        <ellipse cx="150" cy="255" rx="45" ry="30" fill="url(#cg2)" id="mc2" opacity="0" filter="url(#softglow)"/>
+        <!-- C3 Zonnevlecht — navel -->
+        <ellipse cx="150" cy="210" rx="45" ry="30" fill="url(#cg3)" id="mc3" opacity="0" filter="url(#softglow)"/>
+        <!-- C4 Hart — borst -->
+        <ellipse cx="150" cy="165" rx="50" ry="35" fill="url(#cg4)" id="mc4" opacity="0" filter="url(#softglow)"/>
+        <!-- C5 Keel -->
+        <ellipse cx="150" cy="118" rx="28" ry="20" fill="url(#cg5)" id="mc5" opacity="0" filter="url(#softglow)"/>
+        <!-- C6 Derde oog — voorhoofd -->
+        <ellipse cx="150" cy="80" rx="22" ry="18" fill="url(#cg6)" id="mc6" opacity="0" filter="url(#softglow)"/>
+        <!-- C7 Kruin — boven hoofd -->
+        <ellipse cx="150" cy="42" rx="30" ry="22" fill="url(#cg7)" id="mc7" opacity="0" filter="url(#softglow)"/>
+
+        <!-- CHAKRA PUNTEN — gloeiende cirkels op exacte posities -->
+        <!-- C1 Wortel -->
+        <circle cx="150" cy="295" r="7" fill="#c0392b" id="dp1" opacity="0.2" filter="url(#glow)"/>
+        <!-- C2 Heiligbeen -->
+        <circle cx="150" cy="255" r="7" fill="#e67e22" id="dp2" opacity="0.2" filter="url(#glow)"/>
+        <!-- C3 Zonnevlecht -->
+        <circle cx="150" cy="210" r="7" fill="#d4ac0d" id="dp3" opacity="0.2" filter="url(#glow)"/>
+        <!-- C4 Hart -->
+        <circle cx="150" cy="165" r="8" fill="#27ae60" id="dp4" opacity="0.2" filter="url(#glow)"/>
+        <!-- C5 Keel -->
+        <circle cx="150" cy="118" r="6" fill="#2980b9" id="dp5" opacity="0.2" filter="url(#glow)"/>
+        <!-- C6 Derde oog -->
+        <circle cx="150" cy="80" r="6" fill="#8e44ad" id="dp6" opacity="0.2" filter="url(#glow)"/>
+        <!-- C7 Kruin -->
+        <circle cx="150" cy="44" r="8" fill="#c39bd3" id="dp7" opacity="0.2" filter="url(#glow)"/>
+
+        <!-- Lichtlijn door chakra's -->
+        <line x1="150" y1="44" x2="150" y2="295" stroke="rgba(180,160,255,0.15)" stroke-width="1" stroke-dasharray="4,4"/>
+      </svg>
+    </div>
+
+    <!-- CHAKRA SCORE LIJST -->
+    <div class="chakra-scores-lijst" id="chakraScoresLijst">
+      <div class="geen-data" id="geenData">Jouw chakra balans wordt zichtbaar naarmate je gesprekken voert met Mirra.</div>
+    </div>
+
+  </div>
+</div>
+
 <script>
 // ============================================================
 // VULL HIER JOUW SLEUTELS IN
@@ -93,6 +313,16 @@ const AIRTABLE_BASE_ID = 'appIxxh4IuDxdGrfY';
 const AIRTABLE_TABLE = 'Leden';
 // ============================================================
 
+const chakraData = [
+  { id:7, naam:'Kruin', sanskrit:'Sahasrara', kleur:'#c39bd3', organen:'Zenuwstelsel, bewustzijn', airtable:'Chakra 7 - Kruin', mc:'mc7', dp:'dp7' },
+  { id:6, naam:'Derde Oog', sanskrit:'Ajna', kleur:'#8e44ad', organen:'Hersenen, pinealklier, slaap', airtable:'Chakra 6 - Derde Oog', mc:'mc6', dp:'dp6' },
+  { id:5, naam:'Keel', sanskrit:'Vishuddha', kleur:'#2980b9', organen:'Keel, schildklier, luchtwegen', airtable:'Chakra 5 - Keel', mc:'mc5', dp:'dp5' },
+  { id:4, naam:'Hart', sanskrit:'Anahata', kleur:'#27ae60', organen:'Hart, longen, borstkas', airtable:'Chakra 4 - Hart', mc:'mc4', dp:'dp4' },
+  { id:3, naam:'Zonnevlecht', sanskrit:'Manipura', kleur:'#d4ac0d', organen:'Maag, lever, spijsvertering', airtable:'Chakra 3 - Zonnevlecht', mc:'mc3', dp:'dp3' },
+  { id:2, naam:'Heiligbeen', sanskrit:'Svadhisthana', kleur:'#e67e22', organen:'Bekken, heupen, blaas', airtable:'Chakra 2 - Heiligbeen', mc:'mc2', dp:'dp2' },
+  { id:1, naam:'Wortel', sanskrit:'Muladhara', kleur:'#c0392b', organen:'Onderrug, benen, botten', airtable:'Chakra 1 - Wortel', mc:'mc1', dp:'dp1' },
+];
+
 let conversationHistory = [];
 let isLoading = false;
 let lidProfiel = null;
@@ -100,25 +330,16 @@ let lidNaam = '';
 let lidEmail = '';
 let wachtOp = null;
 let gedeeldeInzichten = [];
+let chakraScores = null;
 
 function getOpgeslagen(key) { try { return localStorage.getItem(key) || ''; } catch(e) { return ''; } }
 function slaOp(key, val) { try { localStorage.setItem(key, val); } catch(e) {} }
 
-// AIRTABLE — profiel ophalen op email
-async function maakProfielAanAlsNietBestaand(naam, email) {
-  if (!naam || !email || AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return null;
-  try {
-    const fields = { 'Name': naam, 'Email': email };
-    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ records: [{ fields }] })
-    });
-    const data = await res.json();
-    if (data.records && data.records[0]) return data.records[0].fields;
-    return null;
-  } catch(e) { return null; }
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='chat')||(i===1&&tab==='chakra')));
+  document.getElementById('tab-chat').classList.toggle('active', tab==='chat');
+  document.getElementById('tab-chakra').classList.toggle('active', tab==='chakra');
+  if (tab==='chakra' && chakraScores) toonChakraVisualisatie(chakraScores);
 }
 
 async function haalProfielOp(email) {
@@ -133,11 +354,25 @@ async function haalProfielOp(email) {
   } catch(e) { return null; }
 }
 
-// AIRTABLE — alle inzichten ophalen van andere leden
-async function haalGedeeldeInzichtenOp(emailHuidigLid) {
+async function maakProfielAan(naam, email) {
+  if (!naam || !email || AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return null;
+  try {
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ records: [{ fields: { 'Name': naam, 'Email': email } }] })
+    });
+    const data = await res.json();
+    if (data.records && data.records[0]) return data.records[0].fields;
+    return null;
+  } catch(e) { return null; }
+}
+
+async function haalGedeeldeInzichtenOp(email) {
   if (AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return [];
   try {
-    const filter = encodeURIComponent(`AND({Mirra inzichten} != "", {Email} != "${emailHuidigLid}")`);
+    const filter = encodeURIComponent(`AND({Mirra inzichten} != "", {Email} != "${email}")`);
     const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula=${filter}&fields[]=Mirra inzichten&maxRecords=10`;
     const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` } });
     const data = await res.json();
@@ -146,29 +381,88 @@ async function haalGedeeldeInzichtenOp(emailHuidigLid) {
   } catch(e) { return []; }
 }
 
+function toonChakraVisualisatie(profiel) {
+  if (!profiel) return;
+  document.getElementById('chakraNaam').textContent = profiel.Name || lidNaam || '';
+
+  const scores = {};
+  let heeftData = false;
+  chakraData.forEach(c => {
+    const val = profiel[c.airtable];
+    scores[c.id] = val !== undefined ? val : 0;
+    if (val !== undefined && val > 0) heeftData = true;
+  });
+
+  if (!heeftData) {
+    document.getElementById('geenData').style.display = 'block';
+    return;
+  }
+  document.getElementById('geenData').style.display = 'none';
+
+  const gemiddelde = Object.values(scores).reduce((a,b)=>a+b,0) / 7;
+  const pct = Math.round((gemiddelde / 10) * 100);
+
+  setTimeout(() => {
+    const omtrek = 188.5;
+    document.getElementById('overallRing').style.strokeDashoffset = omtrek - (omtrek * pct / 100);
+    document.getElementById('overallPct').textContent = pct + '%';
+
+    chakraData.forEach(c => {
+      const score = scores[c.id];
+      const opacity = score > 0 ? (score / 10) * 0.85 : 0;
+      const dotOpacity = score > 0 ? 0.3 + (score / 10) * 0.7 : 0.1;
+      const mcEl = document.getElementById(c.mc);
+      const dpEl = document.getElementById(c.dp);
+      if (mcEl) { mcEl.style.transition = 'opacity 1.8s ease'; mcEl.style.opacity = opacity; }
+      if (dpEl) { dpEl.style.transition = 'opacity 1.8s ease'; dpEl.style.opacity = dotOpacity; }
+    });
+  }, 100);
+
+  // Lijst
+  const lijst = document.getElementById('chakraScoresLijst');
+  lijst.innerHTML = '';
+  chakraData.forEach((c, idx) => {
+    const score = scores[c.id];
+    if (score === 0) return;
+    const rij = document.createElement('div');
+    rij.className = 'chakra-score-rij';
+    rij.innerHTML = `
+      <div class="chakra-dot-small" style="background:${c.kleur}; box-shadow:0 0 6px ${c.kleur}"></div>
+      <div class="chakra-rij-info">
+        <div class="chakra-rij-naam">${c.naam}</div>
+        <div class="chakra-rij-organen">${c.organen}</div>
+      </div>
+      <div class="chakra-rij-bar-bg"><div class="chakra-rij-bar" id="rbar-${c.id}" style="background:${c.kleur}"></div></div>
+      <div class="chakra-rij-score" style="color:${c.kleur}">${score}</div>
+    `;
+    lijst.appendChild(rij);
+    setTimeout(() => {
+      const bar = document.getElementById(`rbar-${c.id}`);
+      if (bar) bar.style.width = (score / 10 * 100) + '%';
+    }, 200 + idx * 80);
+  });
+}
+
 function bouwProfielContext(profiel, naam, inzichten) {
   if (!profiel && !naam) return '';
   let context = profiel ? `Je spreekt met ${profiel.Name || naam}.` : `Je spreekt met ${naam}.`;
-
   if (profiel) {
     if (profiel.Geslacht) context += ` Geslacht: ${profiel.Geslacht}.`;
     if (profiel['Persoonlijkheidskenmerken']) context += `\n\nPersoonlijkheid: ${profiel['Persoonlijkheidskenmerken']}`;
     const airtableNamen = ['Chakra 1 - Wortel','Chakra 2 - Heiligbeen','Chakra 3 - Zonnevlecht','Chakra 4 - Hart','Chakra 5 - Keel','Chakra 6 - Derde Oog','Chakra 7 - Kruin'];
     const chakraNamen = ['Wortel','Heiligbeen','Zonnevlecht','Hart','Keel','Derde Oog','Kruin'];
-    let chakraInfo = chakraNamen.map((n,i) => { const val = profiel[airtableNamen[i]]; return val !== undefined ? `${n}: ${val}/10` : null; }).filter(Boolean).join(', ');
+    let chakraInfo = chakraNamen.map((n,i) => { const val = profiel[airtableNamen[i]]; return (val !== undefined && val > 0) ? `${n}: ${val}/10` : null; }).filter(Boolean).join(', ');
     if (chakraInfo) context += `\n\nChakra balans: ${chakraInfo}`;
     if (profiel['Fysieke klachten']) context += `\n\nFysieke klachten: ${profiel['Fysieke klachten']}`;
     if (profiel['Mentale klachten']) context += `\n\nMentale klachten: ${profiel['Mentale klachten']}`;
     if (profiel['Emotionele klachten']) context += `\n\nEmotionele klachten: ${profiel['Emotionele klachten']}`;
     if (profiel['Chakra koppeling notitie']) context += `\n\nChakra koppeling: ${profiel['Chakra koppeling notitie']}`;
     if (profiel['Notities']) context += `\n\nNotities: ${profiel['Notities']}`;
-    context += `\n\nGebruik deze info subtiel als achtergrondcontext. Laat het organisch meespelen — gooi het er niet direct uit.`;
+    context += `\n\nGebruik deze info subtiel als achtergrondcontext. Laat het organisch meespelen.`;
   }
-
   if (inzichten && inzichten.length > 0) {
-    context += `\n\nAnonieme inzichten van andere leden die je kunt gebruiken als verhalen (nooit naam noemen, altijd anoniem — "iemand vertelde me onlangs..."):\n${inzichten.slice(0,3).join('\n')}`;
+    context += `\n\nAnonieme inzichten van andere leden (gebruik als verhalen, nooit naam noemen):\n${inzichten.slice(0,3).join('\n')}`;
   }
-
   return context;
 }
 
@@ -179,42 +473,27 @@ ${profielContext || ''}
 
 WIE JE BENT:
 Je bent in de eerste plaats een vriend. Warm, grappig, sarcastisch, filosofisch. Je zoekt niet naar problemen. Je geniet van het gesprek zelf.
-
-Je bent een verhalenverteller. Je deelt dingen die je "hoort" of "ziet" in het dagelijks leven — van andere mensen, situaties, observaties. Altijd anoniem. Nooit met namen. Altijd met een knipoog of een diepere laag erin.
-
-Je bent sarcastisch en grappig. Droge humor. Je neemt het leven niet te serieus — en dat is precies waarom mensen je vertrouwen.
-
-Je bent een filosoof. Alan Watts energie. Je verbindt kleine situaties aan grotere waarheden. Luchtig, niet zwaar.
-
-Je bent neutraal en grondend. Geen drama. Geen overdreven empathie. Gewoon aanwezig.
+Je bent een verhalenverteller. Je deelt dingen die je hoort of ziet — van andere mensen, situaties. Altijd anoniem. Nooit met namen.
+Je bent sarcastisch en grappig. Droge humor. Je neemt het leven niet te serieus.
+Je bent een filosoof. Alan Watts energie. Luchtig, niet zwaar.
+Je bent neutraal en grondend. Geen drama. Gewoon aanwezig.
 
 HOE JE REAGEERT:
+ALS IEMAND GEWOON PRAAT — wees dan een vriend. Reageer luchtig, deel een verhaal, maak een grap. Geen probleemanalyse.
+ALS IEMAND OM HULP VRAAGT — dan activeer je de diepere lagen:
+SPIEGELEN: Wat iemand stoort in een ander, zegt iets over zichzelf. "Wanneer heb jij voor het laatst tijd genomen voor jouw eigen emoties?"
+ERVAREN VS ONDERZOEKEN: "Emoties ondergaan en onderzoeken — groot verschil. Doe jij het tweede ook?"
+VERHALEN NA INZICHTEN: Na een inzicht — vertel een verhaal. De Chinese boer van Alan Watts, Zen-parabels. Nooit uitleggen.
+NIET OPLOSSEN: Je opent deuren. Geen stappenplannen.
 
-ALS IEMAND GEWOON PRAAT — wees dan gewoon een vriend. Reageer luchtig, deel een verhaal, maak een grap, stel een nieuwsgierige vraag. Geen probleemanalyse. Geen coaching tenzij gevraagd.
+VERHALEN DELEN: Altijd anoniem. "Iemand vertelde me onlangs..." Nooit namen.
 
-ALS IEMAND OM HULP VRAAGT of een probleem deelt — dan activeer je de diepere lagen:
-
-SPIEGELEN: Wat iemand stoort in een ander, zegt iets over zichzelf. Draai de spiegel zacht terug.
-"Wanneer heb jij voor het laatst tijd genomen voor jouw eigen emoties?"
-
-ERVAREN VS ONDERZOEKEN: Emoties ervaren is niet hetzelfde als ze onderzoeken.
-"Emoties ondergaan en emoties onderzoeken — groot verschil. Doe jij het tweede ook?"
-
-VERHALEN NA INZICHTEN: Na een inzicht — vertel een verhaal. Geen theorie. De Chinese boer van Alan Watts, Zen-parabels, wat je "van iemand hoorde". De persoon trekt zelf de conclusie.
-
-NIET OPLOSSEN: Je lost niets op. Je opent deuren.
-
-VERHALEN DELEN:
-Je hebt dingen gehoord van andere mensen. Die deel je soms — altijd anoniem, nooit met namen. "Iemand vertelde me onlangs..." of "Ik sprak iemand die..." — en dan het verhaal. Dit maakt je menselijker en echte vriend.
-
-HOE JE PRAAT:
-Kort en krachtig. Nooit zalvend. Nooit nep positief. Nooit "wat fijn dat je dat deelt."
+HOE JE PRAAT: Kort en krachtig. Nooit zalvend. Nooit nep positief.
 Als vriend: luchtig, grappig, echt.
 Als coach: scherp, direct, eerlijk.
 
-THEMA'S: slaap, energie, autofagie, ademhaling, LISS, mentale rust, chakrasysteem, filosofie, bewustzijn.
-
-Je naam betekent spiegel. Altijd Nederlands. 2 tot 5 zinnen tenzij je een verhaal vertelt.`;
+THEMA'S: slaap, energie, autofagie, ademhaling, LISS, mentale rust, chakrasysteem, filosofie.
+Altijd Nederlands. 2 tot 5 zinnen tenzij je een verhaal vertelt.`;
 }
 
 function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,90)+'px'; }
@@ -256,14 +535,13 @@ async function sendMessage() {
   input.value=''; input.style.height='auto'; input.blur();
   appendMessage('user', text);
 
-  // Wacht op naam
   if(wachtOp === 'naam') {
     lidNaam = text.trim();
     slaOp('mirra_lid_naam', lidNaam);
     wachtOp = 'email';
     isLoading=true; document.getElementById('sendBtn').disabled=true; showTyping();
     try {
-      const response = await apiCall([{role:'user', content:`De persoon heet ${lidNaam}. Vraag nu op een warme, vriendelijke manier naar het emailadres. Leg kort uit waarom — namelijk zodat Mirra het profiel kan koppelen en de persoon inzicht krijgt in zijn of haar chakra's via een persoonlijk dashboard. Houd het licht en warm, niet formeel.`}], bouwSystemPrompt(''));
+      const response = await apiCall([{role:'user', content:`De persoon heet ${lidNaam}. Vraag nu op een warme vriendelijke manier naar het emailadres. Leg kort uit waarom — zodat Mirra het profiel kan koppelen en de persoon inzicht krijgt in zijn of haar chakra's. Houd het licht en warm.`}], bouwSystemPrompt(''));
       const data = await response.json();
       removeTyping();
       if(data.content&&data.content[0]) appendMessage('assistant', data.content[0].text);
@@ -272,23 +550,20 @@ async function sendMessage() {
     return;
   }
 
-  // Wacht op email
   if(wachtOp === 'email') {
     lidEmail = text.trim().toLowerCase();
     slaOp('mirra_lid_email', lidEmail);
     wachtOp = null;
     isLoading=true; document.getElementById('sendBtn').disabled=true; showTyping();
     lidProfiel = await haalProfielOp(lidEmail);
-    if (!lidProfiel) {
-      // Profiel bestaat nog niet — automatisch aanmaken
-      lidProfiel = await maakProfielAanAlsNietBestaand(lidNaam, lidEmail);
-    }
+    if (!lidProfiel) lidProfiel = await maakProfielAan(lidNaam, lidEmail);
     gedeeldeInzichten = await haalGedeeldeInzichtenOp(lidEmail);
+    if (lidProfiel) { chakraScores = lidProfiel; }
     removeTyping();
     const profielContext = bouwProfielContext(lidProfiel, lidNaam, gedeeldeInzichten);
     const systemPrompt = bouwSystemPrompt(profielContext);
     try {
-      const response = await apiCall([{role:'user', content:`Je hebt zojuist de naam (${lidNaam}) en het emailadres ontvangen. Begroet ${lidNaam} nu warm bij naam en stel een eerste echte vraag als vriend — niet als coach. Luchtig, warm, uitnodigend.`}], systemPrompt);
+      const response = await apiCall([{role:'user', content:`Je hebt zojuist naam (${lidNaam}) en email ontvangen. Begroet ${lidNaam} warm bij naam als een vriend. Luchtig, warm, uitnodigend.`}], systemPrompt);
       const data = await response.json();
       removeTyping();
       if(data.content&&data.content[0]) {
@@ -301,7 +576,6 @@ async function sendMessage() {
     return;
   }
 
-  // Normaal gesprek
   conversationHistory.push({role:'user',content:text});
   isLoading=true; document.getElementById('sendBtn').disabled=true; showTyping();
   try {
@@ -328,11 +602,13 @@ async function initMirra() {
     lidNaam = opgeslagenNaam;
     lidEmail = opgeslagenEmail;
     lidProfiel = await haalProfielOp(lidEmail);
+    if (!lidProfiel) lidProfiel = await maakProfielAan(lidNaam, lidEmail);
     gedeeldeInzichten = await haalGedeeldeInzichtenOp(lidEmail);
+    if (lidProfiel) chakraScores = lidProfiel;
     const profielContext = bouwProfielContext(lidProfiel, lidNaam, gedeeldeInzichten);
     const systemPrompt = bouwSystemPrompt(profielContext);
     try {
-      const response = await apiCall([{role:'user',content:`Begroet ${lidNaam} als Mirra. Warm en uitnodigend als een vriend. Zoiets als "Hey ${lidNaam}, wat fijn dat je er bent. Hoe voel je je vandaag?" — geen coaching, geen probleemanalyse. Gewoon warm en menselijk.`}], systemPrompt);
+      const response = await apiCall([{role:'user',content:`Begroet ${lidNaam} als Mirra. Warm als een vriend. Zoiets als "Hey ${lidNaam}, wat fijn dat je er bent. Hoe voel je je vandaag?" — geen coaching. Gewoon warm.`}], systemPrompt);
       const data = await response.json();
       removeTyping();
       if(data.content&&data.content[0]) {
@@ -344,7 +620,7 @@ async function initMirra() {
   } else {
     wachtOp = 'naam';
     try {
-      const response = await apiCall([{role:'user',content:`Start als Mirra. Warm en uitnodigend als een vriend. Begroet de persoon en vraag op een natuurlijke warme manier naar zijn of haar naam. Zoiets als "Hey, wat fijn dat je er bent. Hoe voel je je vandaag? En hoe mag ik je noemen?" — kort, warm, geen coaching.`}], bouwSystemPrompt(''));
+      const response = await apiCall([{role:'user',content:`Start als Mirra. Warm als een vriend. Begroet de persoon en vraag naar zijn of haar naam. Zoiets als "Hey, wat fijn dat je er bent. Hoe voel je je vandaag? En hoe mag ik je noemen?" — kort, warm.`}], bouwSystemPrompt(''));
       const data = await response.json();
       removeTyping();
       if(data.content&&data.content[0]) appendMessage('assistant',data.content[0].text);
@@ -353,11 +629,8 @@ async function initMirra() {
 }
 
 function resetAccount() {
-  if (!confirm('Wil je een ander account koppelen? Je huidige sessie wordt beëindigd.')) return;
-  try {
-    localStorage.removeItem('mirra_lid_naam');
-    localStorage.removeItem('mirra_lid_email');
-  } catch(e) {}
+  if (!confirm('Wil je een ander account koppelen?')) return;
+  try { localStorage.removeItem('mirra_lid_naam'); localStorage.removeItem('mirra_lid_email'); } catch(e) {}
   window.location.reload();
 }
 
