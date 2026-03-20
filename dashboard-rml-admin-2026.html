@@ -210,6 +210,11 @@ body::before { content:''; position:fixed; inset:0; background:radial-gradient(e
     </div>
 
     <div class="section">
+      <div class="section-title">Persoonlijkheidskenmerken</div>
+      <div class="field"><textarea id="veldPersoonlijkheid" rows="4" placeholder="Introvert, perfectionistisch, creatief, angstig van aanleg, empatisch, controlerend..."></textarea></div>
+    </div>
+
+    <div class="section">
       <div class="section-title">Algemene notities</div>
       <div class="field"><textarea id="veldNotities" rows="5" placeholder="Sessie notities, voortgang..."></textarea></div>
     </div>
@@ -313,6 +318,7 @@ function selecteerLid(id) {
   document.getElementById('veldMentaal').value = f['Mentale klachten'] || '';
   document.getElementById('veldEmotioneel').value = f['Emotionele klachten'] || '';
   document.getElementById('veldChakraKoppeling').value = f['Chakra koppeling notitie'] || '';
+  document.getElementById('veldPersoonlijkheid').value = f['Persoonlijkheidskenmerken'] || '';
   setGeslacht(f.Geslacht || 'man');
   const namen = ['','Chakra 1 - Wortel','Chakra 2 - Heiligbeen','Chakra 3 - Zonnevlecht','Chakra 4 - Hart','Chakra 5 - Keel','Chakra 6 - Derde Oog','Chakra 7 - Kruin'];
   for (let i = 1; i <= 7; i++) { const val = f[namen[i]] !== undefined ? f[namen[i]] : 5; document.getElementById(`chakra${i}`).value = val; document.getElementById(`chakraVal${i}`).textContent = val; }
@@ -326,7 +332,7 @@ function selecteerLid(id) {
 
 function nieuwLid() {
   huidigLidId = null;
-  ['veldNaam','veldEmail','veldTelefoon','veldNotities','veldFysiek','veldMentaal','veldEmotioneel','veldChakraKoppeling'].forEach(id => document.getElementById(id).value = '');
+  ['veldNaam','veldEmail','veldTelefoon','veldNotities','veldFysiek','veldMentaal','veldEmotioneel','veldChakraKoppeling','veldPersoonlijkheid'].forEach(id => document.getElementById(id).value = '');
   for (let i = 1; i <= 7; i++) { document.getElementById(`chakra${i}`).value = 5; document.getElementById(`chakraVal${i}`).textContent = 5; }
   setGeslacht('man'); resetSuggesties();
   document.getElementById('profielNaamHeader').textContent = 'Nieuw lid';
@@ -354,6 +360,7 @@ async function slaLidOp() {
     'Mentale klachten': document.getElementById('veldMentaal').value.trim(),
     'Emotionele klachten': document.getElementById('veldEmotioneel').value.trim(),
     'Chakra koppeling notitie': document.getElementById('veldChakraKoppeling').value.trim(),
+    'Persoonlijkheidskenmerken': document.getElementById('veldPersoonlijkheid').value.trim(),
   };
   for (let i = 1; i <= 7; i++) fields[namen[i]] = parseInt(document.getElementById(`chakra${i}`).value);
   try {
