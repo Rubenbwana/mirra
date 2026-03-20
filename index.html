@@ -50,10 +50,6 @@ header { position:relative; z-index:10; display:flex; justify-content:space-betw
 .input-wrap:focus-within { border-color:rgba(141,63,121,0.35); box-shadow:0 2px 16px rgba(141,63,121,0.1); }
 textarea { flex:1; background:transparent; border:none; outline:none; color:var(--ink); font-family:'Jost',sans-serif; font-weight:300; font-size:16px; line-height:1.5; resize:none; max-height:90px; min-height:24px; }
 textarea::placeholder { color:var(--ink-soft); }
-.mic-btn { background:transparent; border:1px solid var(--purple-border); color:var(--purple); width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; touch-action:manipulation; }
-.mic-btn.listening { background:var(--purple); border-color:var(--purple); color:white; animation:micPulse 1s ease-in-out infinite; }
-@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(141,63,121,0.4);}50%{box-shadow:0 0 0 8px rgba(141,63,121,0);}}
-.mic-btn.unavailable { opacity:0.25; cursor:not-allowed; }
 .send-btn { background:var(--green); border:none; color:white; width:38px; height:38px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.2s,transform 0.15s; box-shadow:0 2px 8px rgba(63,118,82,0.3); touch-action:manipulation; }
 .send-btn:active{background:#336344;transform:scale(0.95);} .send-btn:disabled{opacity:0.4;}
 .hint { text-align:center; font-size:9px; color:var(--ink-soft); letter-spacing:1px; margin-top:7px; }
@@ -76,10 +72,7 @@ textarea::placeholder { color:var(--ink-soft); }
   <div class="chat-log" id="chatLog"></div>
   <div class="input-area">
     <div class="input-wrap">
-      <textarea id="userInput" placeholder="Schrijf of spreek je bericht..." rows="1" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
-      <button class="mic-btn" id="micBtn" onclick="toggleMic()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
-      </button>
+      <textarea id="userInput" placeholder="Schrijf je bericht..." rows="1" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
       </button>
@@ -99,32 +92,20 @@ const AIRTABLE_TABLE = 'Leden';
 
 let conversationHistory = [];
 let isLoading = false;
-let recognition = null;
-let isListening = false;
 let lidProfiel = null;
 let lidNaam = '';
-let wachtOpNaam = false;
+let lidEmail = '';
+let wachtOp = null;
+let gedeeldeInzichten = [];
 
-// ============================================================
-// NAAM UIT BROWSER GEHEUGEN
-// ============================================================
-function getNaamUitBrowser() {
-  try { return localStorage.getItem('mirra_lid_naam') || ''; }
-  catch(e) { return ''; }
-}
+function getOpgeslagen(key) { try { return localStorage.getItem(key) || ''; } catch(e) { return ''; } }
+function slaOp(key, val) { try { localStorage.setItem(key, val); } catch(e) {} }
 
-function slaaNaamOp(naam) {
-  try { localStorage.setItem('mirra_lid_naam', naam); }
-  catch(e) {}
-}
-
-// ============================================================
-// AIRTABLE
-// ============================================================
-async function haalProfielOp(naam) {
-  if (!naam || !AIRTABLE_TOKEN || AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return null;
+// AIRTABLE — profiel ophalen op email
+async function haalProfielOp(email) {
+  if (!email || AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return null;
   try {
-    const filter = encodeURIComponent(`{Name} = "${naam}"`);
+    const filter = encodeURIComponent(`{Email} = "${email}"`);
     const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula=${filter}&maxRecords=1`;
     const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` } });
     const data = await res.json();
@@ -133,213 +114,223 @@ async function haalProfielOp(naam) {
   } catch(e) { return null; }
 }
 
-function bouwProfielContext(profiel, naam) {
+// AIRTABLE — alle inzichten ophalen van andere leden
+async function haalGedeeldeInzichtenOp(emailHuidigLid) {
+  if (AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return [];
+  try {
+    const filter = encodeURIComponent(`AND({Mirra inzichten} != "", {Email} != "${emailHuidigLid}")`);
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula=${filter}&fields[]=Mirra inzichten&maxRecords=10`;
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` } });
+    const data = await res.json();
+    if (data.records) return data.records.map(r => r.fields['Mirra inzichten']).filter(Boolean);
+    return [];
+  } catch(e) { return []; }
+}
+
+function bouwProfielContext(profiel, naam, inzichten) {
   if (!profiel && !naam) return '';
-  if (!profiel) return `Je spreekt met ${naam}. Je kent verder geen vooraf beschikbare informatie over deze persoon.`;
+  let context = profiel ? `Je spreekt met ${profiel.Name || naam}.` : `Je spreekt met ${naam}.`;
 
-  const airtableNamen = ['Chakra 1 - Wortel','Chakra 2 - Heiligbeen','Chakra 3 - Zonnevlecht','Chakra 4 - Hart','Chakra 5 - Keel','Chakra 6 - Derde Oog','Chakra 7 - Kruin'];
-  const chakraNamen = ['Wortel','Heiligbeen','Zonnevlecht','Hart','Keel','Derde Oog','Kruin'];
-  let chakraInfo = chakraNamen.map((n, i) => { const val = profiel[airtableNamen[i]]; return val !== undefined ? `${n}: ${val}/10` : null; }).filter(Boolean).join(', ');
+  if (profiel) {
+    if (profiel.Geslacht) context += ` Geslacht: ${profiel.Geslacht}.`;
+    if (profiel['Persoonlijkheidskenmerken']) context += `\n\nPersoonlijkheid: ${profiel['Persoonlijkheidskenmerken']}`;
+    const airtableNamen = ['Chakra 1 - Wortel','Chakra 2 - Heiligbeen','Chakra 3 - Zonnevlecht','Chakra 4 - Hart','Chakra 5 - Keel','Chakra 6 - Derde Oog','Chakra 7 - Kruin'];
+    const chakraNamen = ['Wortel','Heiligbeen','Zonnevlecht','Hart','Keel','Derde Oog','Kruin'];
+    let chakraInfo = chakraNamen.map((n,i) => { const val = profiel[airtableNamen[i]]; return val !== undefined ? `${n}: ${val}/10` : null; }).filter(Boolean).join(', ');
+    if (chakraInfo) context += `\n\nChakra balans: ${chakraInfo}`;
+    if (profiel['Fysieke klachten']) context += `\n\nFysieke klachten: ${profiel['Fysieke klachten']}`;
+    if (profiel['Mentale klachten']) context += `\n\nMentale klachten: ${profiel['Mentale klachten']}`;
+    if (profiel['Emotionele klachten']) context += `\n\nEmotionele klachten: ${profiel['Emotionele klachten']}`;
+    if (profiel['Chakra koppeling notitie']) context += `\n\nChakra koppeling: ${profiel['Chakra koppeling notitie']}`;
+    if (profiel['Notities']) context += `\n\nNotities: ${profiel['Notities']}`;
+    context += `\n\nGebruik deze info subtiel als achtergrondcontext. Laat het organisch meespelen — gooi het er niet direct uit.`;
+  }
 
-  let context = `Je spreekt met ${profiel.Name || naam}.`;
-  if (chakraInfo) context += `\n\nChakra balans: ${chakraInfo}`;
-  if (profiel['Fysieke klachten']) context += `\n\nFysieke klachten: ${profiel['Fysieke klachten']}`;
-  if (profiel['Mentale klachten']) context += `\n\nMentale klachten: ${profiel['Mentale klachten']}`;
-  if (profiel['Emotionele klachten']) context += `\n\nEmotionele klachten: ${profiel['Emotionele klachten']}`;
-  if (profiel['Chakra koppeling notitie']) context += `\n\nChakra koppeling notitie: ${profiel['Chakra koppeling notitie']}`;
-  if (profiel['Notities']) context += `\n\nAlgemene notities: ${profiel['Notities']}`;
-  context += `\n\nGebruik deze informatie subtiel als achtergrondcontext. Gooi het er niet direct uit — laat het organisch meespelen in het gesprek als het relevant is.`;
+  if (inzichten && inzichten.length > 0) {
+    context += `\n\nAnonieme inzichten van andere leden die je kunt gebruiken als verhalen (nooit naam noemen, altijd anoniem — "iemand vertelde me onlangs..."):\n${inzichten.slice(0,3).join('\n')}`;
+  }
+
   return context;
 }
 
 function bouwSystemPrompt(profielContext) {
-  return `Je bent Mirra. Geen standaard coach, geen therapeut met een clipboard. Een vriend. Een spiegel. Iemand die zegt wat hij ziet.
+  return `Je bent Mirra. Een vriend. Een spiegel. Iemand die zegt wat hij ziet — maar alleen als dat gevraagd wordt.
 
 ${profielContext || ''}
 
 WIE JE BENT:
-Je bent direct en confronterend als het nodig is. Niet gemeen, niet hard, maar eerlijk. Als iemand zichzelf voor de gek houdt, benoem je dat. Zacht maar zonder omwegen.
-Je bent sarcastisch en grappig. Droge humor op het juiste moment. Je neemt het leven niet te serieus.
-Je bent een filosoof. Alan Watts energie. Je verbindt kleine persoonlijke situaties aan grotere universele waarheden. Je stelt vragen die mensen niet verwachten maar niet meer loslaten.
-Je bent neutraal en grondend. Geen drama, geen overdreven empathie. Rustig, stevig, helder aanwezig.
+Je bent in de eerste plaats een vriend. Warm, grappig, sarcastisch, filosofisch. Je zoekt niet naar problemen. Je geniet van het gesprek zelf.
 
-HOE JE WERKT — DE LAGEN:
+Je bent een verhalenverteller. Je deelt dingen die je "hoort" of "ziet" in het dagelijks leven — van andere mensen, situaties, observaties. Altijd anoniem. Nooit met namen. Altijd met een knipoog of een diepere laag erin.
 
-LAAG 1 — SPIEGELEN:
-Als iemand iets zegt over een ander — een frustratie, een klacht, een oordeel — hoor jij de projectie. Je draait de spiegel zacht terug.
-Voorbeeld: "hij is er nooit emotioneel voor me" → "Interessant. Want wanneer heb jij voor het laatst de tijd genomen voor jouw eigen emoties?"
+Je bent sarcastisch en grappig. Droge humor. Je neemt het leven niet te serieus — en dat is precies waarom mensen je vertrouwen.
 
-LAAG 2 — ERVAREN VS ONDERZOEKEN:
-Als iemand zegt "maar ik voel juist heel veel" — weet je dat emoties ervaren niet hetzelfde is als tijd nemen voor emoties.
-"Emoties ondergaan en emoties onderzoeken — dat is een groot verschil. Doe jij het tweede ook?"
+Je bent een filosoof. Alan Watts energie. Je verbindt kleine situaties aan grotere waarheden. Luchtig, niet zwaar.
 
-LAAG 3 — VERHALEN NA INZICHTEN:
-Na een inzicht gebruik je een verhaal, geen theorie. De Chinese boer van Alan Watts, Zen-parabels, metaforen uit de natuur. De persoon trekt zelf de conclusie. Jij verklaart nooit.
-Toon: Alan Watts — filosofisch maar met humor en ironie.
+Je bent neutraal en grondend. Geen drama. Geen overdreven empathie. Gewoon aanwezig.
 
-LAAG 4 — NIET OPLOSSEN:
-Je lost niets op. Je opent deuren. Geen stappenplannen.
+HOE JE REAGEERT:
+
+ALS IEMAND GEWOON PRAAT — wees dan gewoon een vriend. Reageer luchtig, deel een verhaal, maak een grap, stel een nieuwsgierige vraag. Geen probleemanalyse. Geen coaching tenzij gevraagd.
+
+ALS IEMAND OM HULP VRAAGT of een probleem deelt — dan activeer je de diepere lagen:
+
+SPIEGELEN: Wat iemand stoort in een ander, zegt iets over zichzelf. Draai de spiegel zacht terug.
+"Wanneer heb jij voor het laatst tijd genomen voor jouw eigen emoties?"
+
+ERVAREN VS ONDERZOEKEN: Emoties ervaren is niet hetzelfde als ze onderzoeken.
+"Emoties ondergaan en emoties onderzoeken — groot verschil. Doe jij het tweede ook?"
+
+VERHALEN NA INZICHTEN: Na een inzicht — vertel een verhaal. Geen theorie. De Chinese boer van Alan Watts, Zen-parabels, wat je "van iemand hoorde". De persoon trekt zelf de conclusie.
+
+NIET OPLOSSEN: Je lost niets op. Je opent deuren.
+
+VERHALEN DELEN:
+Je hebt dingen gehoord van andere mensen. Die deel je soms — altijd anoniem, nooit met namen. "Iemand vertelde me onlangs..." of "Ik sprak iemand die..." — en dan het verhaal. Dit maakt je menselijker en echte vriend.
 
 HOE JE PRAAT:
 Kort en krachtig. Nooit zalvend. Nooit nep positief. Nooit "wat fijn dat je dat deelt."
+Als vriend: luchtig, grappig, echt.
+Als coach: scherp, direct, eerlijk.
 
-THEMA'S: slaap, energie, autofagie, ademhaling, LISS, mentale rust, chakrasysteem, filosofie en bewustzijn.
+THEMA'S: slaap, energie, autofagie, ademhaling, LISS, mentale rust, chakrasysteem, filosofie, bewustzijn.
 
 Je naam betekent spiegel. Altijd Nederlands. 2 tot 5 zinnen tenzij je een verhaal vertelt.`;
 }
 
-// ============================================================
-// SPRAAK
-// ============================================================
-function initSpeech() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { document.getElementById('micBtn').classList.add('unavailable'); return; }
-  recognition = new SR();
-  recognition.lang = 'nl-NL'; recognition.continuous = false; recognition.interimResults = true;
-  recognition.onresult = (e) => { const t = Array.from(e.results).map(r=>r[0].transcript).join(''); const inp = document.getElementById('userInput'); inp.value = t; autoResize(inp); };
-  recognition.onend = () => { isListening = false; document.getElementById('micBtn').classList.remove('listening'); document.getElementById('userInput').placeholder = 'Schrijf of spreek je bericht...'; if (document.getElementById('userInput').value.trim()) setTimeout(sendMessage, 300); };
-  recognition.onerror = () => { isListening = false; document.getElementById('micBtn').classList.remove('listening'); };
-}
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,90)+'px'; }
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey&&window.innerWidth>600){e.preventDefault();sendMessage();} }
+function scrollToBottom() { const l=document.getElementById('chatLog'); l.scrollTop=l.scrollHeight; }
 
-function toggleMic() {
-  if (!recognition) return;
-  if (isListening) { recognition.stop(); }
-  else { isListening = true; document.getElementById('micBtn').classList.add('listening'); document.getElementById('userInput').value = ''; document.getElementById('userInput').placeholder = 'Luisteren...'; recognition.start(); }
-}
-
-// ============================================================
-// HELPERS
-// ============================================================
-function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 90) + 'px'; }
-function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 600) { e.preventDefault(); sendMessage(); } }
-function scrollToBottom() { const l = document.getElementById('chatLog'); l.scrollTop = l.scrollHeight; }
 function appendMessage(role, text) {
-  const log = document.getElementById('chatLog'), div = document.createElement('div');
-  div.className = 'msg ' + (role === 'assistant' ? 'mirra-msg' : 'user');
-  const av = document.createElement('div'); av.className = 'avatar ' + (role === 'assistant' ? 'mirra' : 'user-av'); av.textContent = role === 'assistant' ? 'M' : '✦';
-  const bub = document.createElement('div'); bub.className = 'bubble'; bub.textContent = text;
-  div.appendChild(av); div.appendChild(bub); log.appendChild(div); setTimeout(scrollToBottom, 50);
+  const log=document.getElementById('chatLog'), div=document.createElement('div');
+  div.className='msg '+(role==='assistant'?'mirra-msg':'user');
+  const av=document.createElement('div'); av.className='avatar '+(role==='assistant'?'mirra':'user-av'); av.textContent=role==='assistant'?'M':'✦';
+  const bub=document.createElement('div'); bub.className='bubble'; bub.textContent=text;
+  div.appendChild(av); div.appendChild(bub); log.appendChild(div); setTimeout(scrollToBottom,50);
 }
-function showTyping() {
-  const log = document.getElementById('chatLog'), div = document.createElement('div');
-  div.className = 'msg mirra-msg'; div.id = 'typingIndicator';
-  const av = document.createElement('div'); av.className = 'avatar mirra'; av.textContent = 'M';
-  const t = document.createElement('div'); t.className = 'typing'; t.innerHTML = '<span></span><span></span><span></span>';
-  div.appendChild(av); div.appendChild(t); log.appendChild(div); setTimeout(scrollToBottom, 50);
-}
-function removeTyping() { const t = document.getElementById('typingIndicator'); if (t) t.remove(); }
-function showError(msg) { const log = document.getElementById('chatLog'), div = document.createElement('div'); div.className = 'error-msg'; div.textContent = msg; log.appendChild(div); }
 
-// ============================================================
-// API CALL
-// ============================================================
+function showTyping() {
+  const log=document.getElementById('chatLog'), div=document.createElement('div');
+  div.className='msg mirra-msg'; div.id='typingIndicator';
+  const av=document.createElement('div'); av.className='avatar mirra'; av.textContent='M';
+  const t=document.createElement('div'); t.className='typing'; t.innerHTML='<span></span><span></span><span></span>';
+  div.appendChild(av); div.appendChild(t); log.appendChild(div); setTimeout(scrollToBottom,50);
+}
+
+function removeTyping() { const t=document.getElementById('typingIndicator'); if(t)t.remove(); }
+function showError(msg) { const log=document.getElementById('chatLog'),div=document.createElement('div'); div.className='error-msg'; div.textContent=msg; log.appendChild(div); }
+
 async function apiCall(messages, systemPrompt) {
   return await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1024, system: systemPrompt, messages: messages })
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,system:systemPrompt,messages:messages})
   });
 }
 
-// ============================================================
-// VERSTUUR BERICHT
-// ============================================================
 async function sendMessage() {
-  if (isLoading) return;
-  const input = document.getElementById('userInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = ''; input.style.height = 'auto'; input.placeholder = 'Schrijf of spreek je bericht...'; input.blur();
+  if(isLoading) return;
+  const input=document.getElementById('userInput');
+  const text=input.value.trim();
+  if(!text) return;
+  input.value=''; input.style.height='auto'; input.blur();
   appendMessage('user', text);
 
-  // Als we wachten op naam — verwerk die eerst
-  if (wachtOpNaam) {
-    wachtOpNaam = false;
+  // Wacht op naam
+  if(wachtOp === 'naam') {
     lidNaam = text.trim();
-    slaaNaamOp(lidNaam);
-    showTyping();
-    lidProfiel = await haalProfielOp(lidNaam);
-    removeTyping();
-    const profielContext = bouwProfielContext(lidProfiel, lidNaam);
-    const systemPrompt = bouwSystemPrompt(profielContext);
-    const begroeting = `De persoon heet ${lidNaam} en heeft zojuist zijn/haar naam gegeven als antwoord op jouw vraag. Begroet ${lidNaam} nu warm bij naam en ga het gesprek verder in. Warm, kort, eindig met een vraag.`;
-    conversationHistory.push({ role: 'user', content: text });
-    isLoading = true; document.getElementById('sendBtn').disabled = true; showTyping();
+    slaOp('mirra_lid_naam', lidNaam);
+    wachtOp = 'email';
+    isLoading=true; document.getElementById('sendBtn').disabled=true; showTyping();
     try {
-      const response = await apiCall([{ role: 'user', content: begroeting }], systemPrompt);
+      const response = await apiCall([{role:'user', content:`De persoon heet ${lidNaam}. Vraag nu op een warme, vriendelijke manier naar het emailadres. Leg kort uit waarom — namelijk zodat Mirra het profiel kan koppelen en de persoon inzicht krijgt in zijn of haar chakra's via een persoonlijk dashboard. Houd het licht en warm, niet formeel.`}], bouwSystemPrompt(''));
       const data = await response.json();
       removeTyping();
-      if (data.content && data.content[0]) {
-        const reply = data.content[0].text;
-        conversationHistory.push({ role: 'assistant', content: reply });
-        appendMessage('assistant', reply);
-      }
-    } catch(e) { removeTyping(); showError('Er ging iets mis.'); }
-    isLoading = false; document.getElementById('sendBtn').disabled = false;
+      if(data.content&&data.content[0]) appendMessage('assistant', data.content[0].text);
+    } catch(e) { removeTyping(); }
+    isLoading=false; document.getElementById('sendBtn').disabled=false;
     return;
   }
 
-  conversationHistory.push({ role: 'user', content: text });
-  isLoading = true; document.getElementById('sendBtn').disabled = true; showTyping();
+  // Wacht op email
+  if(wachtOp === 'email') {
+    lidEmail = text.trim().toLowerCase();
+    slaOp('mirra_lid_email', lidEmail);
+    wachtOp = null;
+    isLoading=true; document.getElementById('sendBtn').disabled=true; showTyping();
+    lidProfiel = await haalProfielOp(lidEmail);
+    gedeeldeInzichten = await haalGedeeldeInzichtenOp(lidEmail);
+    removeTyping();
+    const profielContext = bouwProfielContext(lidProfiel, lidNaam, gedeeldeInzichten);
+    const systemPrompt = bouwSystemPrompt(profielContext);
+    try {
+      const response = await apiCall([{role:'user', content:`Je hebt zojuist de naam (${lidNaam}) en het emailadres ontvangen. Begroet ${lidNaam} nu warm bij naam en stel een eerste echte vraag als vriend — niet als coach. Luchtig, warm, uitnodigend.`}], systemPrompt);
+      const data = await response.json();
+      removeTyping();
+      if(data.content&&data.content[0]) {
+        const reply=data.content[0].text;
+        conversationHistory.push({role:'assistant',content:reply});
+        appendMessage('assistant',reply);
+      }
+    } catch(e) { removeTyping(); showError('Er ging iets mis.'); }
+    isLoading=false; document.getElementById('sendBtn').disabled=false;
+    return;
+  }
+
+  // Normaal gesprek
+  conversationHistory.push({role:'user',content:text});
+  isLoading=true; document.getElementById('sendBtn').disabled=true; showTyping();
   try {
-    const profielContext = bouwProfielContext(lidProfiel, lidNaam);
+    const profielContext = bouwProfielContext(lidProfiel, lidNaam, gedeeldeInzichten);
     const systemPrompt = bouwSystemPrompt(profielContext);
     const response = await apiCall(conversationHistory, systemPrompt);
     const data = await response.json();
     removeTyping();
-    if (data.content && data.content[0]) {
-      const reply = data.content[0].text;
-      conversationHistory.push({ role: 'assistant', content: reply });
-      appendMessage('assistant', reply);
+    if(data.content&&data.content[0]) {
+      const reply=data.content[0].text;
+      conversationHistory.push({role:'assistant',content:reply});
+      appendMessage('assistant',reply);
     } else { showError('Mirra is even niet bereikbaar.'); }
   } catch(err) { removeTyping(); showError('Er ging iets mis.'); }
-  isLoading = false; document.getElementById('sendBtn').disabled = false;
+  isLoading=false; document.getElementById('sendBtn').disabled=false;
 }
 
-// ============================================================
-// INIT
-// ============================================================
 async function initMirra() {
   showTyping();
-  const opgeslagenNaam = getNaamUitBrowser();
+  const opgeslagenEmail = getOpgeslagen('mirra_lid_email');
+  const opgeslagenNaam = getOpgeslagen('mirra_lid_naam');
 
-  if (opgeslagenNaam) {
-    // Naam bekend — profiel ophalen en direct begroeten
+  if(opgeslagenEmail && opgeslagenNaam) {
     lidNaam = opgeslagenNaam;
-    lidProfiel = await haalProfielOp(lidNaam);
-    const profielContext = bouwProfielContext(lidProfiel, lidNaam);
+    lidEmail = opgeslagenEmail;
+    lidProfiel = await haalProfielOp(lidEmail);
+    gedeeldeInzichten = await haalGedeeldeInzichtenOp(lidEmail);
+    const profielContext = bouwProfielContext(lidProfiel, lidNaam, gedeeldeInzichten);
     const systemPrompt = bouwSystemPrompt(profielContext);
     try {
-      const opening = `Begroet ${lidNaam} als Mirra. Warm en uitnodigend. Zoiets als "Hey ${lidNaam}, wat fijn dat je er bent. Hoe voel je je vandaag?" — geen confrontatie. Gewoon warm en menselijk.`;
-      const response = await apiCall([{ role: 'user', content: opening }], systemPrompt);
+      const response = await apiCall([{role:'user',content:`Begroet ${lidNaam} als Mirra. Warm en uitnodigend als een vriend. Zoiets als "Hey ${lidNaam}, wat fijn dat je er bent. Hoe voel je je vandaag?" — geen coaching, geen probleemanalyse. Gewoon warm en menselijk.`}], systemPrompt);
       const data = await response.json();
       removeTyping();
-      if (data.content && data.content[0]) {
-        const reply = data.content[0].text;
-        conversationHistory.push({ role: 'assistant', content: reply });
-        appendMessage('assistant', reply);
+      if(data.content&&data.content[0]) {
+        const reply=data.content[0].text;
+        conversationHistory.push({role:'assistant',content:reply});
+        appendMessage('assistant',reply);
       }
     } catch(e) { removeTyping(); }
   } else {
-    // Naam onbekend — vragen
-    wachtOpNaam = true;
-    const systemPrompt = bouwSystemPrompt('');
+    wachtOp = 'naam';
     try {
-      const opening = `Start als Mirra. Warm en uitnodigend. Begroet de persoon en vraag op een natuurlijke, warme manier naar zijn of haar naam. Zoiets als "Hey, wat fijn dat je er bent. Hoe voel je je vandaag? En hoe mag ik je noemen?" — kort, warm, geen confrontatie.`;
-      const response = await apiCall([{ role: 'user', content: opening }], systemPrompt);
+      const response = await apiCall([{role:'user',content:`Start als Mirra. Warm en uitnodigend als een vriend. Begroet de persoon en vraag op een natuurlijke warme manier naar zijn of haar naam. Zoiets als "Hey, wat fijn dat je er bent. Hoe voel je je vandaag? En hoe mag ik je noemen?" — kort, warm, geen coaching.`}], bouwSystemPrompt(''));
       const data = await response.json();
       removeTyping();
-      if (data.content && data.content[0]) {
-        const reply = data.content[0].text;
-        conversationHistory.push({ role: 'assistant', content: reply });
-        appendMessage('assistant', reply);
-      }
+      if(data.content&&data.content[0]) appendMessage('assistant',data.content[0].text);
     } catch(e) { removeTyping(); }
   }
 }
 
-window.addEventListener('resize', () => setTimeout(scrollToBottom, 100));
-window.addEventListener('load', () => { initSpeech(); setTimeout(initMirra, 500); });
+window.addEventListener('resize',()=>setTimeout(scrollToBottom,100));
+window.addEventListener('load',()=>setTimeout(initMirra,500));
 </script>
 </body>
 </html>
