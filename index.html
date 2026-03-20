@@ -102,6 +102,22 @@ function getOpgeslagen(key) { try { return localStorage.getItem(key) || ''; } ca
 function slaOp(key, val) { try { localStorage.setItem(key, val); } catch(e) {} }
 
 // AIRTABLE — profiel ophalen op email
+async function maakProfielAanAlsNietBestaand(naam, email) {
+  if (!naam || !email || AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return null;
+  try {
+    const fields = { 'Name': naam, 'Email': email };
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ records: [{ fields }] })
+    });
+    const data = await res.json();
+    if (data.records && data.records[0]) return data.records[0].fields;
+    return null;
+  } catch(e) { return null; }
+}
+
 async function haalProfielOp(email) {
   if (!email || AIRTABLE_TOKEN === 'JOUW-AIRTABLE-TOKEN-HIER') return null;
   try {
@@ -260,6 +276,10 @@ async function sendMessage() {
     wachtOp = null;
     isLoading=true; document.getElementById('sendBtn').disabled=true; showTyping();
     lidProfiel = await haalProfielOp(lidEmail);
+    if (!lidProfiel) {
+      // Profiel bestaat nog niet — automatisch aanmaken
+      lidProfiel = await maakProfielAanAlsNietBestaand(lidNaam, lidEmail);
+    }
     gedeeldeInzichten = await haalGedeeldeInzichtenOp(lidEmail);
     removeTyping();
     const profielContext = bouwProfielContext(lidProfiel, lidNaam, gedeeldeInzichten);
